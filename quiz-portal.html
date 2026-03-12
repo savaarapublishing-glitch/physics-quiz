@@ -43,6 +43,7 @@
             align-items: center;
             justify-content: center;
             padding: 16px;
+            min-height: 100%;
         }
 
         .container {
@@ -51,7 +52,7 @@
             background: var(--surface-white);
             border-radius: 12px;
             box-shadow: var(--shadow-lg);
-            overflow: hidden;
+            overflow: visible;
             animation: slideUp 0.3s ease-out;
         }
 
@@ -359,19 +360,31 @@
         }
 
         .timer {
-            font-size: 18px;
+            font-size: 20px;
             font-weight: 700;
             color: var(--primary-color);
             margin-bottom: 20px;
             text-align: center;
+            position: sticky;
+            top: 0;
+            background: var(--surface-white);
+            padding: 12px 0;
+            z-index: 100;
+            border-bottom: 2px solid var(--neutral-medium);
+            margin: -28px -28px 20px -28px;
+            padding: 14px 28px;
         }
 
         .timer.warning {
             color: var(--warning-color);
+            background: #fffbeb;
+            border-bottom-color: var(--warning-color);
         }
 
         .timer.danger {
             color: var(--danger-color);
+            background: #fef2f2;
+            border-bottom-color: var(--danger-color);
             animation: pulse 1s infinite;
         }
 
@@ -703,16 +716,44 @@
         }
 
         @media (max-width: 600px) {
+            body {
+                padding: 8px;
+                align-items: flex-start;
+            }
+
+            .container {
+                border-radius: 8px;
+            }
+
             .header {
-                padding: 20px;
+                padding: 16px;
             }
 
             .header h1 {
-                font-size: 24px;
+                font-size: 20px;
+            }
+
+            .header p {
+                font-size: 13px;
             }
 
             .content {
-                padding: 20px;
+                padding: 16px;
+            }
+
+            .timer {
+                font-size: 22px;
+                padding: 10px 16px;
+                margin: -16px -16px 16px -16px;
+            }
+
+            .question-text {
+                font-size: 15px;
+            }
+
+            .answer-item {
+                padding: 12px;
+                font-size: 14px;
             }
 
             .result-card {
@@ -985,7 +1026,7 @@
             },
             {
                 id: 'elektrodynamik-7a-20260312',
-                title: 'Wiederholung: Elektrodynamik (7A) – 12.03.2026',
+                title: 'Test: Elektrodynamik (7A) – 12.03.2026',
                 timeLimit: 300,
                 questions: [
                     {
@@ -1651,18 +1692,49 @@
             const input = document.getElementById('resultCodesInput').value;
             const codes = input.split(/[,\n]+/).map(c => c.trim()).filter(c => c);
 
-            decodedResults = [];
+            let newCount = 0;
+            let duplicateCount = 0;
             codes.forEach(code => {
                 try {
                     // Unicode-safe Base64 decoding (handles German umlauts)
                     const decoded = JSON.parse(decodeURIComponent(escape(atob(code))));
-                    decodedResults.push(decoded);
+                    // Check for duplicates (same name + same quiz + same timestamp)
+                    const isDuplicate = decodedResults.some(existing =>
+                        existing.name === decoded.name &&
+                        existing.quizId === decoded.quizId &&
+                        existing.timestamp === decoded.timestamp
+                    );
+                    if (!isDuplicate) {
+                        decodedResults.push(decoded);
+                        newCount++;
+                    } else {
+                        duplicateCount++;
+                    }
                 } catch (e) {
                     console.error('Invalid code:', code);
                 }
             });
 
+            // Clear input after processing
+            document.getElementById('resultCodesInput').value = '';
+
+            // Show feedback
+            let msg = `${newCount} neue Ergebnis${newCount !== 1 ? 'se' : ''} hinzugefügt.`;
+            if (duplicateCount > 0) {
+                msg += ` ${duplicateCount} Duplikat${duplicateCount !== 1 ? 'e' : ''} übersprungen.`;
+            }
+            msg += ` Gesamt: ${decodedResults.length}`;
+            showDecodeFeedback(msg);
+
             displayResults();
+        }
+
+        function showDecodeFeedback(message) {
+            const feedback = document.createElement('div');
+            feedback.className = 'copy-feedback';
+            feedback.textContent = message;
+            document.body.appendChild(feedback);
+            setTimeout(() => feedback.remove(), 4000);
         }
 
         function displayResults() {
