@@ -1,0 +1,1568 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="description" content="Quiz Portal für Physik Unterricht - gwiku18.at">
+    <title>Physik Quiz Portal</title>
+    <script src="https://cdn.sheetjs.com/xlsx-0.20.0/package/dist/xlsx.full.min.js"></script>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --primary:#4f46e5;--primary-light:#818cf8;--primary-dark:#3730a3;--primary-bg:#eef2ff;
+  --success:#059669;--success-light:#d1fae5;
+  --warning:#d97706;--warning-light:#fef3c7;
+  --danger:#dc2626;--danger-light:#fee2e2;
+  --bg:#f1f5f9;--surface:#fff;--text:#1e293b;--text-light:#64748b;--text-lighter:#94a3b8;
+  --border:#e2e8f0;--border-light:#f1f5f9;
+  --radius:16px;--radius-sm:10px;--radius-xs:6px;
+  --shadow:0 1px 3px rgba(0,0,0,.08);--shadow-md:0 4px 12px rgba(0,0,0,.08);
+  --shadow-lg:0 8px 30px rgba(0,0,0,.12);
+  --gradient:linear-gradient(135deg,#4f46e5 0%,#7c3aed 50%,#a855f7 100%);
+  --gradient-warm:linear-gradient(135deg,#f59e0b 0%,#ef4444 100%);
+  --gradient-cool:linear-gradient(135deg,#06b6d4 0%,#4f46e5 100%);
+  --gradient-success:linear-gradient(135deg,#059669 0%,#10b981 100%);
+  --tr:.2s cubic-bezier(.4,0,.2,1);
+  --font:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,'Helvetica Neue',sans-serif;
+}
+html{font-size:16px;-webkit-text-size-adjust:100%}
+body{font-family:var(--font);background:var(--bg);color:var(--text);line-height:1.6;
+  min-height:100dvh;overflow-x:hidden;-webkit-tap-highlight-color:transparent;
+  transition:background .3s,color .3s}
+.quiz-active{-webkit-user-select:none;user-select:none}
+
+/* Layout */
+.app{max-width:640px;margin:0 auto;padding:0 16px 140px}
+.screen{animation:fadeIn .25s ease-out}
+@keyframes fadeIn{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+@keyframes slideUp{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:none}}
+@keyframes pulse{0%,100%{transform:scale(1)}50%{transform:scale(1.04)}}
+@keyframes shake{0%,100%{transform:translateX(0)}25%{transform:translateX(-3px)}75%{transform:translateX(3px)}}
+@keyframes spin{to{transform:rotate(360deg)}}
+@keyframes glow{0%,100%{box-shadow:0 0 5px rgba(79,70,229,.3)}50%{box-shadow:0 0 20px rgba(79,70,229,.5)}}
+@keyframes urgentPulse{0%,100%{background:var(--danger)}50%{background:#b91c1c}}
+@keyframes borderFlash{0%,100%{border-color:var(--danger)}50%{border-color:transparent}}
+
+/* Header */
+.header{display:flex;align-items:center;justify-content:space-between;padding:14px 0;
+  border-bottom:1px solid var(--border);margin-bottom:16px}
+.header-title{display:flex;align-items:center;gap:10px}
+.header-icon{width:36px;height:36px;border-radius:10px;background:var(--gradient);
+  display:flex;align-items:center;justify-content:center;color:#fff;
+  box-shadow:0 2px 8px rgba(79,70,229,.25)}
+
+/* Cards */
+.card{background:var(--surface);border-radius:var(--radius);padding:20px;
+  box-shadow:var(--shadow);margin-bottom:16px;border:1px solid var(--border);transition:var(--tr)}
+.card-accent{border-left:4px solid var(--primary)}
+.card-warning{border-left:4px solid var(--warning);background:var(--warning-light)}
+.card-danger{border-left:4px solid var(--danger);background:var(--danger-light)}
+.card-success{border-left:4px solid var(--success);background:var(--success-light)}
+.card-warning{border-left:4px solid var(--warning);background:var(--warning-light)}
+
+/* Buttons */
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;
+  padding:10px 20px;border-radius:var(--radius-sm);font-weight:600;font-size:.95rem;
+  transition:var(--tr);border:none;cursor:pointer;line-height:1.4;position:relative}
+.btn:active:not(:disabled){transform:scale(.97)}
+.btn:disabled{opacity:.45;cursor:not-allowed;transform:none}
+.btn-primary{background:var(--gradient);color:#fff;box-shadow:0 2px 8px rgba(79,70,229,.25)}
+.btn-primary:hover:not(:disabled){box-shadow:0 4px 16px rgba(79,70,229,.35);transform:translateY(-1px)}
+.btn-secondary{background:var(--surface);color:var(--text);border:1px solid var(--border)}
+.btn-secondary:hover:not(:disabled){background:var(--bg);border-color:var(--primary)}
+.btn-danger{background:var(--danger);color:#fff}
+.btn-success{background:var(--gradient-success);color:#fff}
+.btn-ghost{background:transparent;color:var(--primary);padding:8px 12px}
+.btn-ghost:hover{background:var(--primary-bg)}
+.btn-block{display:flex;width:100%}
+.btn-lg{padding:14px 28px;font-size:1.05rem;border-radius:var(--radius)}
+.btn-sm{padding:8px 14px;font-size:.85rem;border-radius:var(--radius-xs)}
+
+/* Badges */
+.badge{display:inline-flex;align-items:center;gap:4px;padding:4px 10px;
+  border-radius:20px;font-size:.8rem;font-weight:600;white-space:nowrap}
+.badge-blue{background:var(--primary-bg);color:var(--primary)}
+.badge-green{background:var(--success-light);color:var(--success)}
+.badge-yellow{background:var(--warning-light);color:var(--warning)}
+.badge-red{background:var(--danger-light);color:var(--danger)}
+.badge-orange{background:#fff3e0;color:#e65100}
+.badge-gray{background:var(--bg);color:var(--text-light)}
+
+/* Login */
+.login-screen{display:flex;flex-direction:column;align-items:center;justify-content:center;
+  min-height:90dvh;text-align:center;padding:20px}
+.login-logo{width:72px;height:72px;border-radius:20px;background:var(--gradient);
+  display:flex;align-items:center;justify-content:center;margin-bottom:16px;
+  box-shadow:var(--shadow-lg);animation:glow 3s infinite}
+.login-screen h1{font-size:1.7rem;font-weight:800;margin-bottom:2px;
+  background:var(--gradient);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.login-subtitle{color:var(--text-light);margin-bottom:24px;font-size:.95rem}
+.login-form{width:100%;max-width:360px}
+.login-field{margin-bottom:14px;text-align:left}
+.login-field label{font-size:.8rem;font-weight:600;color:var(--text-light);display:block;margin-bottom:4px;text-transform:uppercase;letter-spacing:.5px}
+.login-input{width:100%;padding:12px 14px;border:2px solid var(--border);border-radius:var(--radius-sm);
+  font-size:1rem;font-family:inherit;transition:var(--tr);background:var(--surface);color:var(--text)}
+.login-input:focus{border-color:var(--primary);outline:none;box-shadow:0 0 0 3px rgba(79,70,229,.12)}
+.login-input::placeholder{color:var(--text-lighter)}
+.login-select{width:100%;padding:12px 14px;border:2px solid var(--border);border-radius:var(--radius-sm);
+  font-size:1rem;font-family:inherit;background:var(--surface);cursor:pointer;
+  appearance:none;-webkit-appearance:none;color:var(--text);
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%2364748b' stroke-width='2'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");
+  background-repeat:no-repeat;background-position:right 12px center;padding-right:32px}
+.login-select:focus{border-color:var(--primary);outline:none}
+.login-error{color:var(--danger);font-size:.85rem;padding:10px 14px;background:var(--danger-light);
+  border-radius:var(--radius-xs);font-weight:500;margin-bottom:12px;animation:shake .3s}
+.login-info{margin-top:20px;font-size:.78rem;color:var(--text-lighter);max-width:300px}
+.demo-link{color:var(--primary);font-size:.85rem;cursor:pointer;text-decoration:underline;text-underline-offset:3px}
+
+/* Quiz Start */
+.quiz-start-card{text-align:center;padding:28px 20px}
+.quiz-start-stats{display:flex;justify-content:center;gap:24px;margin:20px 0;flex-wrap:wrap}
+.quiz-start-stat .number{font-size:1.7rem;font-weight:800;color:var(--primary)}
+.quiz-start-stat .label{font-size:.78rem;color:var(--text-light);margin-top:2px}
+.quiz-hints{text-align:left;padding:14px 16px;background:var(--bg);border-radius:var(--radius-sm);
+  font-size:.88rem;margin-bottom:20px}
+.quiz-hints li{margin-bottom:5px;padding-left:4px;list-style:none}
+.quiz-hints li::before{content:"→ ";color:var(--primary);font-weight:700}
+.nta-section{background:var(--warning-light);border:2px solid var(--warning);
+  border-radius:var(--radius-sm);padding:14px;margin:14px 0;text-align:left}
+.nta-section label{display:flex;align-items:center;gap:10px;cursor:pointer;font-weight:500}
+.nta-section input[type="checkbox"]{width:22px;height:22px;accent-color:var(--warning)}
+.nta-section .nta-info{font-size:.82rem;color:var(--text-light);margin-top:6px;margin-left:32px}
+.mode-badge{display:inline-flex;align-items:center;gap:4px;padding:3px 8px;
+  border-radius:6px;font-size:.72rem;font-weight:700;text-transform:uppercase;letter-spacing:.5px}
+.mode-test{background:var(--danger-light);color:var(--danger)}
+.mode-practice{background:var(--success-light);color:var(--success)}
+
+/* Quiz Screen */
+.quiz-header{display:flex;justify-content:space-between;align-items:center;padding:10px 0;margin-bottom:6px}
+.quiz-question-counter{font-weight:600;color:var(--text-light);font-size:.88rem}
+
+/* TIMER — large, always visible */
+.timer{display:inline-flex;align-items:center;gap:5px;padding:8px 16px;
+  border-radius:24px;font-weight:800;font-size:1.1rem;background:var(--surface);
+  border:2px solid var(--border);color:var(--text);letter-spacing:.5px;
+  box-shadow:var(--shadow)}
+.timer.warning{background:var(--warning-light);color:var(--warning);border-color:var(--warning);
+  font-size:1.15rem;animation:pulse .8s infinite}
+.timer.urgent{background:var(--danger);color:#fff;border-color:var(--danger);
+  font-size:1.25rem;animation:urgentPulse .5s infinite;
+  box-shadow:0 0 20px rgba(220,38,38,.4)}
+
+.progress-bar{height:6px;background:var(--border);border-radius:3px;overflow:hidden}
+.progress-fill{height:100%;background:var(--gradient);border-radius:3px;transition:width .4s cubic-bezier(.4,0,.2,1)}
+.question-type-badge{font-size:.72rem;color:var(--text-lighter);font-weight:500;
+  padding:4px 8px;background:var(--bg);border-radius:var(--radius-xs)}
+
+/* URGENT MODE — last 30 seconds */
+.urgent-mode .app{border:4px solid var(--danger);border-radius:var(--radius);
+  margin:4px;padding-top:8px;animation:borderFlash 1s infinite}
+.urgent-mode .question-nav{border-top:3px solid var(--danger)}
+
+/* MC Options — large touch targets */
+.option{display:flex;align-items:center;gap:12px;padding:16px;
+  border-radius:var(--radius-sm);border:2px solid var(--border);margin-bottom:10px;
+  cursor:pointer;transition:var(--tr);background:var(--surface);min-height:56px}
+.option:active{transform:scale(.98)}
+.option.selected{border-color:var(--primary);background:var(--primary-bg);
+  box-shadow:0 0 0 3px rgba(79,70,229,.15)}
+.option.correct{border-color:var(--success);background:var(--success-light)}
+.option.incorrect{border-color:var(--danger);background:var(--danger-light)}
+.option-letter{width:34px;height:34px;border-radius:8px;background:var(--bg);
+  display:flex;align-items:center;justify-content:center;font-weight:700;
+  font-size:.9rem;color:var(--text-light);flex-shrink:0;transition:var(--tr)}
+.option.selected .option-letter{background:var(--primary);color:#fff}
+.option-text{flex:1;font-size:.95rem}
+
+/* True/False — big buttons */
+.tf-options{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.tf-option{padding:24px 16px;border-radius:var(--radius-sm);border:2px solid var(--border);
+  cursor:pointer;text-align:center;font-weight:700;font-size:1.15rem;
+  transition:var(--tr);background:var(--surface);min-height:70px;
+  display:flex;align-items:center;justify-content:center}
+.tf-option:active{transform:scale(.97)}
+.tf-option.selected{border-color:var(--primary);background:var(--primary-bg);
+  box-shadow:0 0 0 3px rgba(79,70,229,.15)}
+
+/* Fill Blank */
+.fill-blank-text{font-size:1rem;line-height:2.2}
+.fill-blank-input{border:none;border-bottom:2px solid var(--primary);padding:6px 8px;
+  font-size:1rem;font-family:inherit;width:130px;text-align:center;
+  background:var(--primary-bg);border-radius:4px 4px 0 0;outline:none}
+.fill-blank-input:focus{border-bottom-color:var(--primary-dark);box-shadow:0 2px 0 var(--primary)}
+
+/* Matching */
+.match-container{display:flex;flex-direction:column;gap:10px}
+.match-item{display:flex;align-items:center;gap:6px}
+.match-left{flex:1;padding:10px 12px;background:var(--bg);border-radius:var(--radius-xs);
+  font-weight:500;font-size:.88rem;border:1px solid var(--border)}
+.match-arrow{color:var(--text-lighter);font-size:1.1rem;flex-shrink:0}
+.match-select{flex:1;padding:10px 12px;border-radius:var(--radius-xs);
+  border:2px solid var(--border);font-size:.88rem;font-family:inherit;
+  background:var(--surface);cursor:pointer;appearance:none;-webkit-appearance:none;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%2364748b' stroke-width='2'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");
+  background-repeat:no-repeat;background-position:right 8px center;padding-right:28px}
+.match-select:focus{border-color:var(--primary);outline:none}
+
+/* Sorting */
+.sort-container{display:flex;flex-direction:column;gap:8px}
+.sort-item{display:flex;align-items:center;gap:8px;padding:12px;
+  background:var(--surface);border:2px solid var(--border);border-radius:var(--radius-xs)}
+.sort-item .sort-number{width:28px;height:28px;border-radius:50%;background:var(--primary-bg);
+  display:flex;align-items:center;justify-content:center;font-weight:700;font-size:.85rem;
+  color:var(--primary);flex-shrink:0}
+.sort-item .sort-text{flex:1;font-size:.92rem}
+.sort-buttons{display:flex;gap:4px;flex-shrink:0}
+.sort-btn{width:36px;height:36px;border-radius:8px;border:1px solid var(--border);
+  background:var(--surface);cursor:pointer;display:flex;align-items:center;
+  justify-content:center;font-size:.85rem;transition:var(--tr)}
+.sort-btn:active{background:var(--primary-bg);border-color:var(--primary)}
+.sort-btn:disabled{opacity:.25;cursor:not-allowed}
+
+/* Calculation */
+.calc-input{width:100%;padding:16px;border:2px solid var(--border);border-radius:var(--radius-sm);
+  font-size:1.15rem;font-family:inherit;text-align:center}
+.calc-input:focus{border-color:var(--primary);outline:none;box-shadow:0 0 0 3px rgba(79,70,229,.12)}
+.calc-unit{font-size:.88rem;color:var(--text-light);text-align:center;margin-top:6px}
+
+/* Navigation */
+.question-nav{position:fixed;bottom:0;left:0;right:0;background:var(--surface);
+  border-top:1px solid var(--border);padding:12px 16px;
+  padding-bottom:max(12px,env(safe-area-inset-bottom));
+  box-shadow:0 -2px 10px rgba(0,0,0,.06);z-index:100}
+.question-nav .inner{max-width:640px;margin:0 auto;display:flex;
+  justify-content:space-between;align-items:center;gap:12px}
+
+/* Results */
+.result-hero{text-align:center;padding:28px 20px;background:var(--gradient);
+  border-radius:var(--radius);color:#fff;margin-bottom:16px;box-shadow:var(--shadow-lg)}
+.result-score{font-size:3rem;font-weight:900;line-height:1}
+.result-pct{font-size:1.2rem;font-weight:600;opacity:.9;margin-top:4px}
+.result-quiz-title{font-size:.88rem;opacity:.7;margin-top:8px}
+.result-bar{height:8px;background:rgba(255,255,255,.2);border-radius:4px;margin-top:16px;overflow:hidden}
+.result-bar-fill{height:100%;border-radius:4px;background:rgba(255,255,255,.8);transition:width 1s}
+.stat-row{display:flex;justify-content:space-between;padding:10px 0;border-bottom:1px solid var(--border-light)}
+.stat-row:last-child{border-bottom:none}
+.stat-label{color:var(--text-light);font-size:.88rem;display:flex;align-items:center;gap:6px}
+.stat-value{font-weight:600;font-size:.88rem}
+.trust-meter{display:flex;align-items:center;gap:14px;margin-top:14px;padding:14px;background:var(--bg);border-radius:var(--radius-sm)}
+.trust-circle{width:48px;height:48px;border-radius:50%;display:flex;align-items:center;
+  justify-content:center;font-weight:800;font-size:1.1rem;color:#fff;flex-shrink:0}
+.result-code-box{background:var(--bg);padding:14px;border-radius:var(--radius-sm);
+  font-family:'SF Mono',SFMono-Regular,Consolas,monospace;font-size:.82rem;
+  word-break:break-all;border:2px dashed var(--primary);text-align:center;
+  -webkit-user-select:all;user-select:all;letter-spacing:.5px}
+
+/* Teacher */
+.teacher-stats{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:16px}
+.teacher-stat{background:var(--surface);border-radius:var(--radius-sm);padding:14px;
+  text-align:center;border:1px solid var(--border)}
+.teacher-stat .number{font-size:1.4rem;font-weight:800;color:var(--primary)}
+.teacher-stat .label{font-size:.72rem;color:var(--text-light);margin-top:2px}
+.results-table{width:100%;border-collapse:collapse;font-size:.82rem}
+.results-table th{text-align:left;padding:8px 6px;border-bottom:2px solid var(--border);
+  font-weight:600;color:var(--text-light);font-size:.75rem;text-transform:uppercase;letter-spacing:.5px}
+.results-table td{padding:8px 6px;border-bottom:1px solid var(--border-light)}
+.results-table tr:hover{background:var(--bg)}
+.section-title{font-size:.95rem;font-weight:700;margin-bottom:10px;display:flex;align-items:center;gap:8px}
+
+/* Anti-Cheat */
+.anticheat-banner{display:flex;align-items:center;gap:8px;padding:10px 14px;
+  background:var(--primary-bg);border:1px solid var(--primary-light);
+  border-radius:var(--radius-xs);font-size:.82rem;color:var(--primary-dark)}
+#ac-warning{position:fixed;top:0;left:0;right:0;background:var(--warning);color:#fff;
+  text-align:center;padding:14px 16px;font-weight:600;font-size:.9rem;z-index:9999;
+  transform:translateY(-100%);transition:transform .3s ease;box-shadow:var(--shadow-lg)}
+#ac-warning.show{transform:translateY(0)}
+
+/* Spinner */
+.spinner{width:28px;height:28px;border:3px solid var(--border);
+  border-top-color:var(--primary);border-radius:50%;animation:spin .7s linear infinite}
+.spinner-overlay{position:fixed;inset:0;background:rgba(255,255,255,.85);z-index:9999;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px}
+
+/* Google Sheets status */
+.sheets-status{font-size:.78rem;padding:6px 10px;border-radius:var(--radius-xs);
+  display:inline-flex;align-items:center;gap:4px;font-weight:500}
+.sheets-ok{background:var(--success-light);color:var(--success)}
+.sheets-err{background:var(--danger-light);color:var(--danger)}
+
+/* Responsive */
+@media(max-width:480px){
+  .app{padding:0 12px 130px}
+  .quiz-start-stats{gap:16px}
+  .teacher-stats{grid-template-columns:repeat(2,1fr)}
+  h1{font-size:1.3rem}
+  .btn-lg{padding:12px 20px;font-size:1rem}
+  .result-score{font-size:2.5rem}
+  .timer{font-size:1rem;padding:6px 12px}
+  .timer.urgent{font-size:1.15rem}
+}
+</style>
+</head>
+<body>
+<div id="ac-warning"></div>
+<div class="app" id="app"></div>
+
+<script>
+// ============================================================
+// CONFIG
+// ============================================================
+const CONFIG = {
+  teacherPassword: 'TopicPhysik2024',
+  apiKey: 'QuizPhysik2024Secret',
+  schoolDomain: 'gwiku18.at', // E-Mail-Domain der Schule
+  // Google Sheets Web App URL (Apps Script deployment)
+  // Leeres Feld = kein auto-upload, nur lokaler Export
+  googleSheetsUrl: 'https://script.google.com/macros/s/AKfycbxevNftfUBdqBzQZn1Wd5snbD6NVMRJuYAYZVzuYuUxfyDaDaU8thJ-F5tfEnpFG6PE/exec',
+};
+
+// ============================================================
+// STATE
+// ============================================================
+const state = {
+  screen: 'login', user: null, quizzes: [], currentQuiz: null,
+  currentQuestionIndex: 0, questionOrder: [], answerOrders: {}, answers: {},
+  submitted: false, score: null, maxScore: null, startTime: null,
+  timeRemaining: 0, timerInterval: null, resultCode: '', randomSeed: 0,
+  quizMode: 'test', ntaActive: false, allResults: [],
+  antiCheat: {
+    events: [], trustScore: 100, isFullscreen: false, startedAt: 0,
+    lastHeartbeat: Date.now(), lastTouch: Date.now(), warningCount: 0,
+    heartbeatInterval: null, touchInterval: null, answerTimestamps: {},
+    devToolsOpen: false,
+  },
+};
+
+// ============================================================
+// QUIZZES
+// ============================================================
+const QUIZZES = [
+  {
+    id: 'test-check-01',
+    title: 'System-Check (3 Fragen)',
+    subject: 'Physik',
+    class: 'Test',
+    accessCode: 'TEST1',
+    reviewCode: 'REV-TEST1',
+    mode: 'test',
+    timeLimitMinutes: 2,
+    maxPoints: 6,
+    antiCheat: true,
+    randomizeQuestions: true,
+    randomizeAnswers: true,
+    ntaEnabled: true,
+    allowMultipleAttempts: false,
+    questions: [
+      {
+        id: 'tc-q1', type: 'multipleChoice', points: 2,
+        text: 'Wie lautet die Einheit der Kraft im SI-System?',
+        options: [
+          { id: 'a', text: 'Watt', correct: false },
+          { id: 'b', text: 'Newton', correct: true },
+          { id: 'c', text: 'Joule', correct: false },
+          { id: 'd', text: 'Pascal', correct: false },
+        ]
+      },
+      {
+        id: 'tc-q2', type: 'trueFalse', points: 2,
+        text: 'Die Masse eines Körpers ändert sich, wenn man ihn auf den Mond bringt.',
+        correct: false
+      },
+      {
+        id: 'tc-q3', type: 'calculation', points: 2,
+        text: 'Ein Körper wiegt 5 kg. Berechne seine Gewichtskraft auf der Erde (g = 10 m/s²). Antwort in Newton.',
+        correctAnswer: 50,
+        tolerance: 1,
+        unit: 'N'
+      },
+    ]
+  },
+  {
+    id: 'mechanik-wiederholung-01',
+    title: 'Mechanik Grundlagen',
+    subject: 'Physik',
+    class: '7A',
+    accessCode: 'MECH7A',
+    reviewCode: 'REV-MECH7A',
+    mode: 'test',
+    timeLimitMinutes: 10,
+    maxPoints: 24,
+    antiCheat: true,
+    randomizeQuestions: true,
+    randomizeAnswers: true,
+    ntaEnabled: true,
+    allowMultipleAttempts: false,
+    questions: [
+      { id: 'mech-q1', type: 'multipleChoice', points: 2, text: 'Wie lautet die Einheit der Kraft im SI-System?',
+        options: [{id:'a',text:'Watt',correct:false},{id:'b',text:'Newton',correct:true},{id:'c',text:'Joule',correct:false},{id:'d',text:'Pascal',correct:false}]},
+      { id: 'mech-q2', type: 'multipleChoice', points: 2, text: 'Ein Auto fährt 120 km in 2 Stunden. Wie groß ist die Durchschnittsgeschwindigkeit?',
+        options: [{id:'a',text:'30 km/h',correct:false},{id:'b',text:'60 km/h',correct:true},{id:'c',text:'90 km/h',correct:false},{id:'d',text:'120 km/h',correct:false}]},
+      { id: 'mech-q3', type: 'trueFalse', points: 1, text: 'Die Masse eines Körpers ändert sich, wenn man ihn auf den Mond bringt.', correct: false },
+      { id: 'mech-q4', type: 'trueFalse', points: 1, text: 'Kraft ist eine vektorielle Größe.', correct: true },
+      { id: 'mech-q5', type: 'fillBlank', points: 2, text: 'Die Formel für die Geschwindigkeit lautet: v = {blank} / t',
+        blanks: [{id:'b1',answer:'s',accepted:['s','weg','Strecke','Weg']}]},
+      { id: 'mech-q6', type: 'fillBlank', points: 2, text: 'Die Erdbeschleunigung beträgt ungefähr {blank} m/s².',
+        blanks: [{id:'b1',answer:'9.81',accepted:['9,81','9.81','9.8','9,8','10']}]},
+      { id: 'mech-q7', type: 'matching', points: 3, text: 'Ordne die physikalischen Größen ihren Einheiten zu:',
+        pairs: [{id:'p1',left:'Kraft',right:'Newton (N)'},{id:'p2',left:'Energie',right:'Joule (J)'},{id:'p3',left:'Leistung',right:'Watt (W)'},{id:'p4',left:'Druck',right:'Pascal (Pa)'}]},
+      { id: 'mech-q8', type: 'sorting', points: 3, text: 'Ordne die Schritte zur Berechnung der kinetischen Energie:',
+        items: [{id:'s1',text:'Masse m bestimmen',correctPosition:0},{id:'s2',text:'Geschwindigkeit v messen',correctPosition:1},{id:'s3',text:'v quadrieren (v²)',correctPosition:2},{id:'s4',text:'E = ½·m·v² berechnen',correctPosition:3}]},
+      { id: 'mech-q9', type: 'calculation', points: 3, text: 'Ein Körper mit 5 kg wird mit 3 m/s² beschleunigt. Berechne die Kraft in Newton.',
+        correctAnswer: 15, tolerance: 0.5, unit: 'N' },
+      { id: 'mech-q10', type: 'multipleChoice', points: 2, text: 'Welches Newtonsche Gesetz beschreibt "actio = reactio"?',
+        options: [{id:'a',text:'1. Newtonsches Gesetz',correct:false},{id:'b',text:'2. Newtonsches Gesetz',correct:false},{id:'c',text:'3. Newtonsches Gesetz',correct:true},{id:'d',text:'Energieerhaltungssatz',correct:false}]},
+      { id: 'mech-q11', type: 'calculation', points: 3, text: 'Ein Ball fällt 2 Sekunden im freien Fall (g=9.81 m/s²). Welche Geschwindigkeit erreicht er?',
+        correctAnswer: 19.62, tolerance: 0.5, unit: 'm/s' },
+    ]
+  },
+  {
+    id: 'energie-uebung-01',
+    title: 'Energie — Übung',
+    subject: 'Physik',
+    class: '7A',
+    accessCode: 'ENER7A',
+    reviewCode: 'REV-ENER7A',
+    mode: 'practice',
+    timeLimitMinutes: 0,
+    maxPoints: 12,
+    antiCheat: false,
+    randomizeQuestions: false,
+    randomizeAnswers: true,
+    ntaEnabled: false,
+    allowMultipleAttempts: true,
+    questions: [
+      { id: 'ene-q1', type: 'multipleChoice', points: 2, text: 'Welche Energieform hat ein Buch auf einem Tisch?',
+        options: [{id:'a',text:'Kinetische Energie',correct:false},{id:'b',text:'Potentielle Energie',correct:true},{id:'c',text:'Thermische Energie',correct:false},{id:'d',text:'Elektrische Energie',correct:false}]},
+      { id: 'ene-q2', type: 'trueFalse', points: 1, text: 'Energie kann vernichtet werden.', correct: false },
+      { id: 'ene-q3', type: 'fillBlank', points: 2, text: 'Die Formel für potentielle Energie lautet: E_pot = m · {blank} · h',
+        blanks: [{id:'b1',answer:'g',accepted:['g','G','9.81','9,81']}]},
+      { id: 'ene-q4', type: 'calculation', points: 3, text: 'Kinetische Energie eines 2 kg Balls mit 4 m/s? (E=½·m·v²)',
+        correctAnswer: 16, tolerance: 0.5, unit: 'J' },
+      { id: 'ene-q5', type: 'matching', points: 2, text: 'Ordne die Energieformen den Beispielen zu:',
+        pairs: [{id:'p1',left:'Fahrendes Auto',right:'Kinetische Energie'},{id:'p2',left:'Gespannte Feder',right:'Spannenergie'},{id:'p3',left:'Heißer Kaffee',right:'Thermische Energie'}]},
+      { id: 'ene-q6', type: 'sorting', points: 2, text: 'Ordne den Energiewandlungsprozess beim Bungee-Jumping:',
+        items: [{id:'s1',text:'Potentielle Energie (oben)',correctPosition:0},{id:'s2',text:'Kinetische Energie (Fallen)',correctPosition:1},{id:'s3',text:'Spannenergie (Seil dehnt)',correctPosition:2},{id:'s4',text:'Zurück nach oben',correctPosition:3}]},
+    ]
+  }
+  ,
+  {
+    id: 'welle-teilchen-7a-01',
+    title: 'Welle und Teilchen — Kapitel 33',
+    subject: 'Physik',
+    class: '7A',
+    accessCode: 'QUANT7A',
+    reviewCode: 'REV-QUANT7A',
+    mode: 'test',
+    timeLimitMinutes: 5,
+    maxPoints: 15,
+    antiCheat: true,
+    randomizeQuestions: true,
+    randomizeAnswers: true,
+    ntaEnabled: true,
+    allowMultipleAttempts: false,
+    questions: [
+      {
+        id: 'wt-q1', type: 'multipleChoice', points: 2,
+        text: 'Beim Doppelspalt-Experiment schickt man Licht durch zwei schmale Spalte auf einen Schirm. Wäre Licht ausschließlich ein Teilchenstrom, würde man genau zwei helle Streifen erwarten. Tatsächlich beobachtet man aber viele helle und dunkle Streifen. Warum widerlegt dieses Muster die reine Teilchentheorie des Lichts?',
+        explanation: 'Das Streifenmuster entsteht durch Interferenz — ein reines Wellenphänomen. Teilchen würden sich nicht gegenseitig verstärken oder auslöschen.',
+        options: [
+          { id: 'a', text: 'Weil die vielen Streifen durch Überlagerung von Wellen entstehen — an manchen Stellen verstärken sich die Wellen (hell), an anderen löschen sie sich aus (dunkel).', correct: true },
+          { id: 'b', text: 'Weil die vielen Streifen dadurch entstehen, dass die Lichtteilchen an den Spaltkanten in verschiedene Richtungen abgelenkt werden und sich dabei gleichmäßig verteilen.', correct: false },
+          { id: 'c', text: 'Weil die vielen Streifen dadurch entstehen, dass sich die Lichtteilchen gegenseitig abstoßen und dadurch ein regelmäßiges Muster auf dem Schirm erzeugen.', correct: false },
+        ]
+      },
+      {
+        id: 'wt-q2', type: 'trueFalse', points: 2,
+        text: 'Am Doppelspalt kann es vorkommen, dass Licht aus zwei Spalten an einer Stelle am Schirm zu Dunkelheit führt, weil Wellenberg auf Wellental trifft und sich die Wellen gegenseitig aufheben (destruktive Interferenz).',
+        correct: true,
+        explanation: 'Destruktive Interferenz bedeutet: Wellenberg trifft auf Wellental, und die Wellen heben sich auf. Licht plus Licht kann tatsächlich Dunkelheit ergeben.'
+      },
+      {
+        id: 'wt-q3', type: 'multipleChoice', points: 2,
+        text: 'Ein Schüler behauptet: „Wenn ich eine rote Lampe einfach heller aufdrehe, haben die roten Photonen irgendwann genauso viel Energie wie blaue." Was ist an dieser Aussage falsch?',
+        explanation: 'Die Formel E = h · f zeigt: Die Energie eines einzelnen Photons wird ausschließlich durch seine Frequenz bestimmt. Helligkeit (Intensität) bedeutet mehr Photonen, nicht energiereichere.',
+        options: [
+          { id: 'a', text: 'Durch höhere Intensität erhöht sich die Frequenz der Photonen, aber erst ab einer bestimmten Schwelle erreichen sie die Energie blauer Photonen.', correct: false },
+          { id: 'b', text: 'Durch höhere Intensität steigt die Anzahl der Photonen, aber die Energie jedes einzelnen Photons bleibt gleich — sie hängt nur von der Frequenz ab, nicht von der Helligkeit.', correct: true },
+          { id: 'c', text: 'Durch höhere Intensität steigt sowohl die Anzahl als auch die Energie der einzelnen Photonen, aber rote Photonen können die Energie blauer Photonen trotzdem nie überschreiten.', correct: false },
+        ]
+      },
+      {
+        id: 'wt-q4', type: 'matching', points: 4,
+        text: 'Ordne die Begriffe zum Fotoeffekt und zur Quantenphysik korrekt zu (1 Punkt pro richtige Zuordnung):',
+        explanation: 'Beim Fotoeffekt zählt die Energie pro Photon (E = h·f), nicht die Gesamtintensität. Höhere Frequenz bedeutet mehr Energie PRO Photon. Höhere Intensität bedeutet mehr Photonen insgesamt. Ob ein Elektron gelöst wird, hängt nur von der Frequenz ab — nicht von der Helligkeit.',
+        pairs: [
+          { id: 'p1', left: 'Energie eines Photons (Formel)', right: 'E = h · f' },
+          { id: 'p2', left: 'Lampe heller drehen', right: 'Mehr Photonen, gleiche Energie pro Photon' },
+          { id: 'p3', left: 'Licht mit höherer Frequenz', right: 'Mehr Energie pro einzelnes Photon' },
+          { id: 'p4', left: 'Elektron beim Fotoeffekt lösen', right: 'Nur die Frequenz des Lichts entscheidet' },
+        ]
+      },
+      {
+        id: 'wt-q5', type: 'multipleChoice', points: 2,
+        text: 'De Broglie schlug 1924 vor, dass auch Teilchen wie Elektronen eine Wellenlänge besitzen. 1999 gelang es Wiener Forschern, sogar mit großen C₆₀-Molekülen ein Interferenzmuster zu erzeugen. Warum beobachten wir solche Welleneffekte nicht bei einem Tennisball?',
+        explanation: 'Laut de Broglie hat JEDES Objekt eine Wellenlänge — auch ein Tennisball. Die Formel λ = h/p zeigt: Je größer die Masse (und damit der Impuls), desto kleiner die Wellenlänge. Beim Tennisball ergibt sich ca. 10⁻³⁴ m — das ist milliardenfach kleiner als ein Atomkern.',
+        options: [
+          { id: 'a', text: 'Weil die de-Broglie-Wellenlänge λ = h/p ist: Je größer Masse und Impuls, desto kleiner λ. Beim Tennisball ist λ ≈ 10⁻³⁴ m — viel zu klein für messbare Interferenz.', correct: true },
+          { id: 'b', text: 'Weil nur subatomare Teilchen wie Elektronen und Protonen eine de-Broglie-Wellenlänge haben — makroskopische Objekte besitzen keine.', correct: false },
+          { id: 'c', text: 'Weil sich der Tennisball zu schnell bewegt, und Welleneffekte nur bei langsamen Objekten auftreten.', correct: false },
+          { id: 'd', text: 'Weil die Gravitationskraft bei großen Objekten die Welleneigenschaften vollständig unterdrückt.', correct: false },
+        ]
+      },
+      {
+        id: 'wt-q6', type: 'fillBlank', points: 3,
+        text: 'Vervollständige die Sätze zur Photonenenergie:\n\nDie Formel lautet: E = {blank1} · f\n\nDas „f" in der Formel steht für die ______ des Lichts: {blank2}\n\nDreht man eine Lampe heller auf, steigt die Anzahl der Photonen. Die ______ eines einzelnen Photons bleibt aber gleich: {blank3}',
+        explanation: 'E = h · f — „h" ist das Plancksche Wirkungsquantum (eine Naturkonstante), „f" die Frequenz. Höhere Intensität = mehr Photonen, aber jedes einzelne Photon hat dieselbe Energie (bestimmt nur durch die Frequenz). Jede Lücke zählt 1 Punkt.',
+        blanks: [
+          { id: 'blank1', answer: 'h', accepted: ['h', 'H', 'planck', 'Planck', 'ℎ', 'plancksches wirkungsquantum'] },
+          { id: 'blank2', answer: 'Frequenz', accepted: ['Frequenz', 'frequenz', 'die Frequenz'] },
+          { id: 'blank3', answer: 'Energie', accepted: ['Energie', 'energie', 'die Energie', 'E'] },
+        ]
+      },
+    ]
+  }
+];
+
+// ============================================================
+// UTILITIES
+// ============================================================
+function hashString(str) {
+  let h = 0;
+  for (let i = 0; i < str.length; i++) { h = ((h << 5) - h) + str.charCodeAt(i); h |= 0; }
+  return Math.abs(h);
+}
+function seededRandom(seed) {
+  let s = seed;
+  return () => { s = (s * 16807) % 2147483647; return (s - 1) / 2147483646; };
+}
+function shuffleWithSeed(arr, rng) {
+  const a = [...arr];
+  for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(rng() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; }
+  return a;
+}
+function formatTime(sec) {
+  if (sec <= 0) return '0:00';
+  return Math.floor(sec / 60) + ':' + String(sec % 60).padStart(2, '0');
+}
+function levenshtein(a, b) {
+  const m = a.length, n = b.length, d = Array.from({length: m+1}, (_, i) => [i]);
+  for (let j = 1; j <= n; j++) d[0][j] = j;
+  for (let i = 1; i <= m; i++) for (let j = 1; j <= n; j++)
+    d[i][j] = a[i-1]===b[j-1] ? d[i-1][j-1] : 1+Math.min(d[i-1][j],d[i][j-1],d[i-1][j-1]);
+  return d[m][n];
+}
+function checkBlankAnswer(input, correct, accepted) {
+  const inp = input.trim().toLowerCase(), cor = correct.toLowerCase();
+  if (inp === cor) return true;
+  if (accepted?.map(a => a.toLowerCase()).includes(inp)) return true;
+  if (levenshtein(inp, cor) <= 1 && inp.length >= 2) return true;
+  return false;
+}
+const LETTERS = 'ABCDEFGHIJ';
+
+// Unique student ID from email (deterministic, unfakeable)
+function studentIdFromEmail(email) {
+  return 'stu_' + hashString(email.toLowerCase().trim()).toString(36);
+}
+
+// Completed tracking
+function isQuizDone(quizId, userId) {
+  return localStorage.getItem(`qz_done_${quizId}_${userId}`) === '1';
+}
+function markQuizDone(quizId, userId) {
+  localStorage.setItem(`qz_done_${quizId}_${userId}`, '1');
+}
+function getStoredResults() {
+  try { return JSON.parse(localStorage.getItem('qz_results') || '[]'); } catch { return []; }
+}
+function storeResult(r) {
+  const all = getStoredResults(); all.push(r);
+  localStorage.setItem('qz_results', JSON.stringify(all));
+}
+
+// Haptic feedback (mobile)
+function haptic(type = 'light') {
+  if (!navigator.vibrate) return;
+  if (type === 'light') navigator.vibrate(10);
+  else if (type === 'medium') navigator.vibrate(30);
+  else if (type === 'heavy') navigator.vibrate([50, 30, 50]);
+  else if (type === 'error') navigator.vibrate([100, 50, 100]);
+}
+
+// ============================================================
+// GOOGLE SHEETS INTEGRATION
+// ============================================================
+async function sendToGoogleSheets(result) {
+  if (!CONFIG.googleSheetsUrl) return { ok: false, reason: 'not_configured' };
+  try {
+    const resp = await fetch(CONFIG.googleSheetsUrl, {
+      method: 'POST', mode: 'no-cors',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        apiKey: CONFIG.apiKey,
+        timestamp: result.timestamp,
+        startTime: result.startTime,
+        endTime: result.endTime,
+        name: result.userName,
+        email: result.userEmail,
+        class: result.userClass,
+        quiz: result.quizTitle,
+        quizId: result.quizId,
+        score: result.score,
+        maxScore: result.maxScore,
+        percentage: result.percentage,
+        trustScore: result.trustScore,
+        acEvents: result.antiCheatEvents,
+        nta: result.ntaActive ? 'Ja' : 'Nein',
+        elapsed: result.elapsed,
+        code: result.resultCode,
+      })
+    });
+    return { ok: true };
+  } catch (e) {
+    console.warn('Google Sheets send failed:', e);
+    return { ok: false, reason: e.message };
+  }
+}
+
+// ============================================================
+// EXCEL EXPORT
+// ============================================================
+function exportResultToExcel(result) {
+  const data = [
+    ['Quiz Portal — Ergebnis'],
+    [],
+    ['Feld', 'Wert'],
+    ['Name', result.userName], ['E-Mail', result.userEmail],
+    ['Klasse', result.userClass], ['Quiz', result.quizTitle],
+    ['Datum', new Date(result.timestamp).toLocaleString('de-AT')],
+    ['Punkte', result.score + '/' + result.maxScore],
+    ['Prozent', result.percentage + '%'],
+    ['Vertrauens-Score', result.trustScore],
+    ['Anti-Cheat Events', result.antiCheatEvents],
+    ['NTA', result.ntaActive ? 'Ja' : 'Nein'],
+    ['Zeit (Sek.)', result.elapsed],
+    ['Code', result.resultCode],
+    [], ['Anti-Cheat Protokoll'],
+    ['Typ', 'Detail', 'Frage', 'Nach Sek.'],
+    ...(result.antiCheatLog || []).map(e => [e.type, e.detail, e.questionIndex+1, e.elapsed])
+  ];
+  const wb = XLSX.utils.book_new();
+  const ws = XLSX.utils.aoa_to_sheet(data);
+  ws['!cols'] = [{wch:20},{wch:45}];
+  XLSX.utils.book_append_sheet(wb, ws, 'Ergebnis');
+  XLSX.writeFile(wb, `${result.userName.replace(/\s/g,'_')}_${result.quizId}.xlsx`);
+}
+
+function exportAllResultsToExcel(results) {
+  if (!results?.length) { alert('Keine Ergebnisse.'); return; }
+  const data = [
+    ['Quiz Portal — Sammel-Export', '', '', '', '', '', '', '', '', new Date().toLocaleString('de-AT')],
+    [],
+    ['Name', 'E-Mail', 'Klasse', 'Quiz', 'Punkte', 'Max', '%', 'Trust', 'Events', 'NTA', 'Datum', 'Code'],
+    ...results.map(r => [r.userName, r.userEmail, r.userClass||'—', r.quizTitle,
+      r.score, r.maxScore, r.percentage+'%', r.trustScore, r.antiCheatEvents,
+      r.ntaActive?'Ja':'—', new Date(r.timestamp).toLocaleString('de-AT'), r.resultCode])
+  ];
+  const wb = XLSX.utils.book_new();
+  const ws = XLSX.utils.aoa_to_sheet(data);
+  ws['!cols'] = [{wch:18},{wch:28},{wch:6},{wch:22},{wch:6},{wch:5},{wch:5},{wch:6},{wch:6},{wch:4},{wch:16},{wch:40}];
+  XLSX.utils.book_append_sheet(wb, ws, 'Ergebnisse');
+  XLSX.writeFile(wb, `Quiz_Ergebnisse_${new Date().toISOString().slice(0,10)}.xlsx`);
+}
+
+// ============================================================
+// ANTI-CHEAT (Mobile-optimized)
+// ============================================================
+const AntiCheat = {
+  _listeners: [],
+  _intervals: [],
+
+  init() {
+    state.antiCheat = { events:[], trustScore:100, isFullscreen:false, startedAt:Date.now(),
+      lastHeartbeat:Date.now(), lastTouch:Date.now(), warningCount:0,
+      heartbeatInterval:null, touchInterval:null, answerTimestamps:{}, devToolsOpen:false };
+    const on = (t,e,h) => { t.addEventListener(e,h); this._listeners.push({t,e,h}); };
+    const iv = (fn,ms) => { const id=setInterval(fn,ms); this._intervals.push(id); return id; };
+
+    // 1. Visibility (most reliable on mobile)
+    on(document, 'visibilitychange', () => {
+      if (document.hidden && state.screen==='quiz' && !state.submitted && !state.isSubmitting)
+        this.logEvent('tab_hidden', 'App verlassen / Tab-Wechsel');
+    });
+
+    // 2. Page focus (catches iOS app switcher)
+    on(window, 'blur', () => {
+      if (state.screen==='quiz' && !state.submitted && !state.isSubmitting)
+        this.logEvent('window_blur', 'Fenster-Fokus verloren');
+    });
+    on(window, 'pagehide', () => {
+      if (state.screen==='quiz' && !state.submitted && !state.isSubmitting)
+        this.logEvent('page_hide', 'Seite wird verlassen');
+    });
+
+    // 3. Fullscreen
+    on(document, 'fullscreenchange', () => {
+      if (!document.fullscreenElement && state.screen==='quiz' && !state.submitted) {
+        this.logEvent('fullscreen_exit', 'Vollbild verlassen');
+        state.antiCheat.isFullscreen = false;
+      }
+    });
+
+    // 4. Resize / split screen
+    let lastW = window.innerWidth;
+    on(window, 'resize', () => {
+      if (state.screen==='quiz' && !state.submitted) {
+        const w = window.innerWidth;
+        if (Math.abs(w-lastW)>40) this.logEvent('resize', `Resize: ${lastW}→${w}px`);
+        lastW = w;
+      }
+    });
+
+    // 5. Clipboard
+    on(document, 'copy', e => { if (state.screen==='quiz'&&!state.submitted) { e.preventDefault(); this.logEvent('copy','Kopieren blockiert'); }});
+    on(document, 'paste', e => { if (state.screen==='quiz'&&!state.submitted) { e.preventDefault(); this.logEvent('paste','Einfügen blockiert'); }});
+    on(document, 'contextmenu', e => { if (state.screen==='quiz'&&!state.submitted) { e.preventDefault(); }});
+
+    // 6. Keyboard shortcuts
+    on(document, 'keydown', e => {
+      if (state.screen!=='quiz'||state.submitted) return;
+      const meta = e.ctrlKey||e.metaKey;
+      if ((meta&&'cvuaCVUA'.includes(e.key)) || (meta&&e.shiftKey&&'iIjJ'.includes(e.key)) || e.key==='F12' || e.key==='PrintScreen') {
+        e.preventDefault(); this.logEvent('key_blocked', 'Taste: '+e.key);
+      }
+    });
+
+    // 7. Back button
+    history.pushState(null,'',location.href);
+    on(window, 'popstate', () => {
+      if (state.screen==='quiz'&&!state.submitted) {
+        history.pushState(null,'',location.href);
+        this.logEvent('back_btn', 'Zurück blockiert');
+      }
+    });
+
+    // 8. Heartbeat
+    iv(() => {
+      if (state.screen==='quiz'&&!state.submitted) {
+        const gap = Date.now()-state.antiCheat.lastHeartbeat;
+        if (gap>5000) this.logEvent('heartbeat', `Aussetzer: ${Math.round(gap/1000)}s`);
+        state.antiCheat.lastHeartbeat = Date.now();
+      }
+    }, 2000);
+
+    // 9. Inactivity (mobile-relevant)
+    on(document,'touchstart',()=>{state.antiCheat.lastTouch=Date.now()});
+    on(document,'mousedown',()=>{state.antiCheat.lastTouch=Date.now()});
+    on(document,'keydown',()=>{state.antiCheat.lastTouch=Date.now()});
+    iv(() => {
+      if (state.screen==='quiz'&&!state.submitted) {
+        const idle = Date.now()-state.antiCheat.lastTouch;
+        if (idle>40000) { this.logEvent('inactive',`Inaktiv: ${Math.round(idle/1000)}s`); state.antiCheat.lastTouch=Date.now(); }
+      }
+    }, 8000);
+
+    // 10. DevTools
+    iv(() => {
+      if (state.screen!=='quiz'||state.submitted) return;
+      if (window.outerWidth-window.innerWidth>150||window.outerHeight-window.innerHeight>150) {
+        if (!state.antiCheat.devToolsOpen) { state.antiCheat.devToolsOpen=true; this.logEvent('devtools','DevTools erkannt'); }
+      } else state.antiCheat.devToolsOpen=false;
+    }, 2000);
+
+    // 11. Orientation
+    on(window,'orientationchange',()=>{
+      if (state.screen==='quiz'&&!state.submitted) this.logEvent('orientation','Rotation');
+    });
+
+    // 12. Screen wake lock (keep screen on during test)
+    this.requestWakeLock();
+  },
+
+  async requestWakeLock() {
+    try { if ('wakeLock' in navigator) this._wakeLock = await navigator.wakeLock.request('screen'); } catch {}
+  },
+
+  logEvent(type, detail) {
+    state.antiCheat.events.push({ type, detail, timestamp:new Date().toISOString(),
+      questionIndex:state.currentQuestionIndex, elapsed:Math.round((Date.now()-state.antiCheat.startedAt)/1000) });
+    const pen = {tab_hidden:15,window_blur:10,page_hide:15,fullscreen_exit:20,resize:10,
+      copy:10,paste:10,key_blocked:8,back_btn:5,heartbeat:10,inactive:5,devtools:20,
+      orientation:3,fast_answer:5};
+    state.antiCheat.trustScore = Math.max(0, state.antiCheat.trustScore-(pen[type]||5));
+    state.antiCheat.warningCount++;
+    haptic('error');
+    this.showWarning(type);
+  },
+
+  recordAnswerTime(qid) {
+    const now=Date.now(), last=state.antiCheat.answerTimestamps._last||state.antiCheat.startedAt;
+    const sec=(now-last)/1000;
+    state.antiCheat.answerTimestamps[qid]=sec;
+    state.antiCheat.answerTimestamps._last=now;
+    if (sec<2&&state.currentQuestionIndex>0) this.logEvent('fast_answer',`${sec.toFixed(1)}s`);
+  },
+
+  showWarning(type) {
+    const msg = {tab_hidden:'Tab-Wechsel erkannt!',window_blur:'Fensterwechsel erkannt!',
+      page_hide:'App verlassen erkannt!',fullscreen_exit:'Vollbild verlassen!',
+      resize:'Split-Screen erkannt!',copy:'Kopieren blockiert!',paste:'Einfügen blockiert!',
+      key_blocked:'Tastenkombination blockiert!',back_btn:'Zurück blockiert!',
+      heartbeat:'Verbindungspause erkannt!',inactive:'Inaktivität erkannt!',
+      devtools:'Entwicklertools erkannt!',orientation:'Rotation erkannt!',
+      fast_answer:'Sehr schnelle Antwort!'};
+    const el = document.getElementById('ac-warning');
+    if (!el) return;
+    el.textContent = '⚠ ' + (msg[type]||'Auffälliges Verhalten!') + ' — wird protokolliert.';
+    el.classList.add('show');
+    setTimeout(()=>el.classList.remove('show'), 3500);
+  },
+
+  requestFullscreen() {
+    const el=document.documentElement;
+    const rfs=el.requestFullscreen||el.webkitRequestFullscreen;
+    if (rfs) rfs.call(el).then(()=>{state.antiCheat.isFullscreen=true}).catch(()=>{});
+  },
+
+  cleanup() {
+    this._intervals.forEach(clearInterval); this._intervals=[];
+    this._listeners.forEach(({t,e,h})=>t.removeEventListener(e,h)); this._listeners=[];
+    if (this._wakeLock) { this._wakeLock.release().catch(()=>{}); this._wakeLock=null; }
+  },
+
+  generateResultCode(quiz, user, score, maxScore) {
+    const ts=state.antiCheat.trustScore, ev=state.antiCheat.events.length;
+    const cls=(quiz.class||'XX').replace(/\s/g,'');
+    const qc=quiz.id.substring(0,8).toUpperCase();
+    const nc=(user.name||'ANON').toUpperCase().replace(/\s+/g,'_').substring(0,20);
+    const nta=state.ntaActive?'-NTA':'';
+    const p=`${cls}-${qc}-${nc}-${score}v${maxScore}-T${ts}-AC${String(ev).padStart(2,'0')}${nta}`;
+    return `QZ-${p}-${hashString(p+'S'+quiz.id).toString(36).substring(0,6)}`;
+  }
+};
+
+// ============================================================
+// RENDER
+// ============================================================
+function render() {
+  const app = document.getElementById('app');
+  switch(state.screen) {
+    case 'login': app.innerHTML = renderLogin(); break;
+    case 'quizStart': app.innerHTML = renderQuizStart(); break;
+    case 'quiz': renderQuiz(); initFillBlanks(); break;
+    case 'results': app.innerHTML = renderResults(); break;
+    case 'teacherDashboard': app.innerHTML = renderTeacherDashboard(); break;
+    case 'review': app.innerHTML = renderReview(); break;
+  }
+}
+
+// ---- LOGIN ----
+function renderLogin() {
+  return `
+    <div class="login-screen screen">
+      <div class="login-logo"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" width="32" height="32"><path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"/></svg></div>
+      <h1>Quiz Portal</h1>
+      <p class="login-subtitle">Physik — AHS Oberstufe</p>
+      <div class="login-form">
+        <div class="card" style="text-align:left;padding:24px">
+          <div class="login-field">
+            <label>Schul-E-Mail-Adresse</label>
+            <input type="email" id="login-email" class="login-input"
+              placeholder="vorname.nachname@${CONFIG.schoolDomain}"
+              autocomplete="email" inputmode="email" spellcheck="false"
+              onkeydown="if(event.key==='Enter')studentLogin()">
+          </div>
+          <div class="login-field">
+            <label>Zugangscode</label>
+            <input type="text" id="login-code" class="login-input"
+              placeholder="z.B. TEST1"
+              style="text-transform:uppercase;letter-spacing:3px;text-align:center;font-weight:700;font-size:1.1rem"
+              autocomplete="off" autocorrect="off" spellcheck="false"
+              onkeydown="if(event.key==='Enter')studentLogin()">
+            <div style="font-size:.75rem;color:var(--text-lighter);margin-top:4px">Bekommst du von deiner Lehrkraft</div>
+          </div>
+          <div id="login-error" style="display:none"></div>
+          <button class="btn btn-primary btn-block btn-lg" onclick="studentLogin()" style="margin-top:4px">
+            Anmelden
+          </button>
+        </div>
+        <div style="text-align:center;margin-top:12px">
+          <a class="demo-link" onclick="showReviewLogin()" style="margin-bottom:8px;display:block">Korrektur ansehen</a>
+          <a class="demo-link" onclick="showTeacherLogin()">Lehrer-Dashboard</a>
+        </div>
+      </div>
+      <p class="login-info">Anmeldung mit deiner Schul-E-Mail. Jeder Test kann nur einmal gestartet werden.</p>
+    </div>`;
+}
+
+function showLoginError(msg) {
+  const el = document.getElementById('login-error');
+  if (el) { el.className='login-error'; el.textContent=msg; el.style.display='block'; haptic('error'); }
+}
+
+function studentLogin() {
+  const email = document.getElementById('login-email')?.value.trim().toLowerCase();
+  const code = document.getElementById('login-code')?.value.trim().toUpperCase();
+
+  if (!email || !email.includes('@')) { showLoginError('Bitte gib deine Schul-E-Mail ein.'); return; }
+  if (!email.endsWith('@'+CONFIG.schoolDomain) && !email.endsWith('@schule.at')) {
+    showLoginError(`Bitte verwende deine @${CONFIG.schoolDomain} E-Mail-Adresse.`); return;
+  }
+  if (!code) { showLoginError('Bitte gib den Zugangscode ein.'); return; }
+
+  const quiz = QUIZZES.find(q => q.accessCode?.toUpperCase() === code);
+  if (!quiz) { showLoginError('Ungültiger Zugangscode.'); return; }
+
+  const userId = studentIdFromEmail(email);
+
+  if (!quiz.allowMultipleAttempts && isQuizDone(quiz.id, userId)) {
+    showLoginError('Du hast diesen Test bereits abgegeben. Kein erneuter Zugang möglich.');
+    return;
+  }
+
+  // Extract name from email (vorname.nachname@domain)
+  const nameParts = email.split('@')[0].split('.');
+  const name = nameParts.map(p => p.charAt(0).toUpperCase() + p.slice(1)).join(' ');
+
+  state.user = { name, email, id: userId, role: 'student', class: quiz.class };
+  state.quizzes = [quiz];
+  state.currentQuiz = JSON.parse(JSON.stringify(quiz));
+  state.ntaActive = false;
+  state.screen = 'quizStart';
+  haptic('medium');
+  render();
+}
+
+function showTeacherLogin() {
+  const pwd = prompt('Lehrer-Passwort:');
+  if (!pwd) return;
+  if (pwd !== CONFIG.teacherPassword) { alert('Falsches Passwort.'); return; }
+  state.user = { name:'Lehrkraft', email:'', id:'teacher', role:'teacher', class:'' };
+  state.quizzes = QUIZZES;
+  state.allResults = getStoredResults();
+  state.screen = 'teacherDashboard';
+  render();
+}
+
+function showReviewLogin() {
+  const email = document.getElementById('login-email')?.value.trim().toLowerCase();
+  if (!email || !email.includes('@')) { showLoginError('Gib zuerst deine E-Mail ein.'); return; }
+  const code = document.getElementById('login-code')?.value.trim().toUpperCase();
+  if (!code) { showLoginError('Gib den Korrektur-Code ein (z.B. REV-TEST1).'); return; }
+
+  const quiz = QUIZZES.find(q => q.reviewCode?.toUpperCase() === code);
+  if (!quiz) { showLoginError('Ungültiger Korrektur-Code.'); return; }
+
+  const userId = studentIdFromEmail(email);
+  const nameParts = email.split('@')[0].split('.');
+  const name = nameParts.map(p => p.charAt(0).toUpperCase() + p.slice(1)).join(' ');
+
+  state.user = { name, email, id: userId, role: 'student', class: quiz.class };
+  state.currentQuiz = JSON.parse(JSON.stringify(quiz));
+
+  // Restore question order from stored seed
+  state.randomSeed = hashString(userId + quiz.id);
+  const rng = seededRandom(state.randomSeed);
+  state.questionOrder = quiz.randomizeQuestions ?
+    shuffleWithSeed(quiz.questions.map((_,i)=>i), rng) :
+    quiz.questions.map((_,i)=>i);
+
+  state.screen = 'review';
+  render();
+}
+
+// ---- QUIZ START ----
+function renderQuizStart() {
+  const q = state.currentQuiz;
+  const ntaTime = Math.ceil(q.timeLimitMinutes * 0.5); // 50% extra
+  const totalWithNta = q.timeLimitMinutes + ntaTime;
+
+  return `
+    <div class="screen" style="display:flex;flex-direction:column;min-height:85dvh;justify-content:center">
+      <div class="card quiz-start-card">
+        <span class="mode-badge ${q.mode==='test'?'mode-test':'mode-practice'}" style="margin-bottom:10px">
+          ${q.mode==='test'?'Test':'Übung'}
+        </span>
+        <h1 style="margin-bottom:4px;font-size:1.4rem">${q.title}</h1>
+        <p style="color:var(--text-light);font-size:.9rem">${q.class} — ${q.subject}</p>
+        <p style="color:var(--text-lighter);font-size:.82rem;margin-top:2px">${state.user.name} (${state.user.email})</p>
+
+        <div class="quiz-start-stats">
+          <div class="quiz-start-stat"><div class="number">${q.questions.length}</div><div class="label">Fragen</div></div>
+          <div class="quiz-start-stat"><div class="number">${q.maxPoints}</div><div class="label">Punkte</div></div>
+          ${q.timeLimitMinutes>0?`<div class="quiz-start-stat"><div class="number">${q.timeLimitMinutes}</div><div class="label">Minuten</div></div>`:''}
+        </div>
+
+        ${q.antiCheat?`<div class="anticheat-banner" style="margin-bottom:14px">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="18" height="18"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+          <span>Anti-Cheat aktiv — Tab-Wechsel und Inaktivität werden protokolliert.</span>
+        </div>`:''}
+
+        ${q.ntaEnabled && q.timeLimitMinutes>0 ? `
+          <div class="nta-section" id="nta-section">
+            <label>
+              <input type="checkbox" id="nta-checkbox" onchange="state.ntaActive=this.checked">
+              <div><strong>Nachteilsausgleich (NTA)</strong></div>
+            </label>
+            <div class="nta-info">
+              Wenn du einen genehmigten Nachteilsausgleich hast, aktiviere diese Option.
+              Du erhältst <strong>${ntaTime} Minuten</strong> zusätzliche Zeit (${totalWithNta} Min. statt ${q.timeLimitMinutes} Min.).
+              Dies wird im Ergebnis vermerkt.
+            </div>
+          </div>
+        `:''}
+
+        <ul class="quiz-hints">
+          <li>Fragen und Antworten sind zufällig angeordnet</li>
+          ${q.timeLimitMinutes>0?'<li>Der Timer läuft nach dem Start durch</li>':''}
+          ${q.antiCheat?'<li><strong>Verlasse NICHT den Browser während des Tests!</strong></li>':''}
+          ${!q.allowMultipleAttempts?'<li>Dieser Test kann nur <strong>einmal</strong> gemacht werden</li>':''}
+          ${q.mode==='practice'?'<li>Übungsmodus: sofortiges Feedback, wiederholbar</li>':''}
+        </ul>
+
+        <button class="btn btn-primary btn-block btn-lg" onclick="beginQuiz()">
+          ${q.mode==='test'?'Test starten':'Übung starten'}
+        </button>
+        <button class="btn btn-ghost btn-block" onclick="logout()" style="margin-top:8px">Abbrechen</button>
+      </div>
+    </div>`;
+}
+
+function beginQuiz() {
+  const quiz = state.currentQuiz;
+  state.randomSeed = hashString((state.user.id||'anon')+quiz.id);
+  const rng = seededRandom(state.randomSeed);
+
+  // Randomize questions
+  state.questionOrder = quiz.randomizeQuestions ?
+    shuffleWithSeed(quiz.questions.map((_,i)=>i), rng) :
+    quiz.questions.map((_,i)=>i);
+
+  if (quiz.poolSize>0 && quiz.poolSize<quiz.questions.length)
+    state.questionOrder = state.questionOrder.slice(0, quiz.poolSize);
+
+  // Randomize answers
+  state.answerOrders = {};
+  if (quiz.randomizeAnswers) {
+    state.questionOrder.forEach(qi => {
+      const q = quiz.questions[qi];
+      if (q.type==='multipleChoice') state.answerOrders[qi] = shuffleWithSeed(q.options.map((_,i)=>i), rng);
+      if (q.type==='matching') state.answerOrders[qi] = shuffleWithSeed(q.pairs.map((_,i)=>i), rng);
+      if (q.type==='sorting') state.answerOrders[qi] = shuffleWithSeed(q.items.map((_,i)=>i), rng);
+    });
+  }
+
+  // Init sorting answers
+  state.answers = {};
+  state.questionOrder.forEach(qi => {
+    const q = quiz.questions[qi];
+    if (q.type==='sorting') {
+      state.answers[q.id] = (state.answerOrders[qi]||q.items.map((_,i)=>i)).map(i=>q.items[i].id);
+    }
+  });
+
+  state.currentQuestionIndex = 0;
+  state.submitted = false; state.score = null;
+  state.startTime = Date.now();
+  state.quizMode = quiz.mode || 'test';
+
+  // Time with NTA: +50% of total
+  let mins = quiz.timeLimitMinutes || 0;
+  if (state.ntaActive && mins>0) mins = Math.ceil(mins * 1.5);
+  state.timeRemaining = mins>0 ? mins*60 : 0;
+
+  state.screen = 'quiz';
+  document.body.classList.add('quiz-active');
+
+  if (quiz.antiCheat) { AntiCheat.init(); AntiCheat.requestFullscreen(); }
+
+  if (state.timeRemaining>0) {
+    state.timerInterval = setInterval(()=>{
+      state.timeRemaining--;
+      updateTimer();
+      // Urgent mode: last 30 seconds
+      if (state.timeRemaining<=30) document.body.classList.add('urgent-mode');
+      if (state.timeRemaining<=0) submitQuiz();
+    }, 1000);
+  }
+
+  haptic('medium');
+  render();
+}
+
+// ---- QUIZ ----
+function renderQuiz() {
+  const app = document.getElementById('app');
+  const quiz = state.currentQuiz;
+  const qi = state.questionOrder[state.currentQuestionIndex];
+  const q = quiz.questions[qi];
+  const total = state.questionOrder.length;
+  const cur = state.currentQuestionIndex + 1;
+  const pct = (cur/total)*100;
+  const isWarn = state.timeRemaining>0 && state.timeRemaining<=60;
+  const isUrgent = state.timeRemaining>0 && state.timeRemaining<=30;
+  const types = {multipleChoice:'Multiple Choice',trueFalse:'Wahr / Falsch',fillBlank:'Lückentext',matching:'Zuordnung',sorting:'Reihenfolge',calculation:'Berechnung'};
+
+  app.innerHTML = `
+    <div class="screen">
+      <div class="quiz-header">
+        <div class="quiz-question-counter">Frage ${cur}/${total}</div>
+        ${state.timeRemaining>0 ?
+          `<div class="timer${isUrgent?' urgent':isWarn?' warning':''}" id="timer">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>
+            ${formatTime(state.timeRemaining)}
+          </div>` :
+          `<span class="badge badge-gray" style="font-size:.78rem">Ohne Zeitlimit</span>`}
+      </div>
+      <div class="progress-bar"><div class="progress-fill" style="width:${pct}%"></div></div>
+
+      ${state.ntaActive?`<div style="display:flex;align-items:center;gap:5px;margin:8px 0 0;font-size:.75rem;color:var(--warning);font-weight:600">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14"><circle cx="12" cy="4" r="1.5"/><path d="M7 8l5 2 5-2M12 10v5M9 21l3-6 3 6"/></svg> NTA aktiv
+      </div>`:''}
+
+      <div class="card card-accent" style="margin-top:12px">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">
+          <span class="badge badge-blue">${q.points} ${q.points===1?'Punkt':'Punkte'}</span>
+          <span class="question-type-badge">${types[q.type]||q.type}</span>
+        </div>
+        <p style="font-size:1.02rem;line-height:1.6;margin-bottom:18px;font-weight:500">
+          ${q.type==='fillBlank' ? '' : q.text.replace(/\{blank\d*\}/g,'___')}
+        </p>
+        <div id="qcontent">${renderQContent(qi,q)}</div>
+      </div>
+
+      ${state.quizMode==='practice'&&state.answers[q.id]!==undefined?renderFeedback(q):''}
+    </div>
+    <div class="question-nav">
+      <div class="inner">
+        <button class="btn btn-secondary btn-sm" onclick="prevQ()" ${state.currentQuestionIndex===0?'disabled':''}>← Zurück</button>
+        <span style="font-size:.82rem;color:var(--text-light)">${cur}/${total}</span>
+        ${state.currentQuestionIndex===total-1?
+          `<button class="btn btn-primary btn-sm" onclick="confirmSubmit()">Abgeben</button>`:
+          `<button class="btn btn-primary btn-sm" onclick="nextQ()">Weiter →</button>`}
+      </div>
+    </div>`;
+}
+
+function renderQContent(qi, q) {
+  if (q.type==='multipleChoice') {
+    const order = state.answerOrders[qi]||q.options.map((_,i)=>i);
+    return order.map((oi,di) => {
+      const o=q.options[oi]; const sel=state.answers[q.id]===o.id;
+      return `<div class="option ${sel?'selected':''}" onclick="selectMC('${q.id}','${o.id}')">
+        <div class="option-letter">${LETTERS[di]}</div><div class="option-text">${o.text}</div></div>`;
+    }).join('');
+  }
+  if (q.type==='trueFalse') {
+    const a=state.answers[q.id];
+    return `<div class="tf-options">
+      <div class="tf-option ${a===true?'selected':''}" onclick="selectTF('${q.id}',true)">Wahr</div>
+      <div class="tf-option ${a===false?'selected':''}" onclick="selectTF('${q.id}',false)">Falsch</div></div>`;
+  }
+  if (q.type==='fillBlank') {
+    let txt = q.text.replace(/\\n/g, '<br>').replace(/\n/g, '<br>');
+    let blankIdx = 0;
+    let h = '<div class="fill-blank-text">' + txt.replace(/\{blank\d*\}/g, () => {
+      const b = q.blanks[blankIdx]; blankIdx++;
+      if (!b) return '___';
+      return '<span class="fb-slot" data-qid="'+q.id+'" data-bid="'+b.id+'"></span>';
+    }) + '</div>';
+    // Inputs get injected after innerHTML via initFillBlanks()
+    return h;
+  }
+  if (q.type==='matching') {
+    const ro = state.answerOrders[qi] ? state.answerOrders[qi].map(i=>q.pairs[i]) : [...q.pairs];
+    return `<div class="match-container">${q.pairs.map(p=>{
+      const cv=(state.answers[q.id]||{})[p.id]||'';
+      return `<div class="match-item"><div class="match-left">${p.left}</div><div class="match-arrow">→</div>
+        <select class="match-select" data-qid="${q.id}" data-pid="${p.id}" onchange="updateMatch(this)">
+        <option value="">Wählen...</option>${ro.map(r=>`<option value="${r.right}" ${cv===r.right?'selected':''}>${r.right}</option>`).join('')}
+        </select></div>`;
+    }).join('')}</div>`;
+  }
+  if (q.type==='sorting') {
+    const order=state.answers[q.id]||q.items.map(it=>it.id);
+    return `<div class="sort-container">${order.map((id,idx)=>{
+      const it=q.items.find(x=>x.id===id); if(!it) return '';
+      return `<div class="sort-item"><span class="sort-number">${idx+1}</span>
+        <span class="sort-text">${it.text}</span>
+        <div class="sort-buttons">
+          <button class="sort-btn" onclick="moveSort('${q.id}',${idx},-1)" ${idx===0?'disabled':''}>▲</button>
+          <button class="sort-btn" onclick="moveSort('${q.id}',${idx},1)" ${idx===order.length-1?'disabled':''}>▼</button>
+        </div></div>`;
+    }).join('')}</div>`;
+  }
+  if (q.type==='calculation') {
+    const v=state.answers[q.id]||'';
+    return `<input type="number" step="any" class="calc-input" value="${v}"
+      placeholder="Antwort eingeben..." oninput="updateCalc('${q.id}',this.value)"
+      autocomplete="off" inputmode="decimal">
+      ${q.unit?`<div class="calc-unit">Einheit: ${q.unit}</div>`:''}`;
+  }
+  return '';
+}
+
+function renderFeedback(q) {
+  const ok = checkQ(q);
+  if (ok===null) return '';
+  return `<div class="card ${ok?'card-success':'card-danger'}" style="animation:slideUp .25s">
+    <strong>${ok?'Richtig!':'Leider falsch.'}</strong>
+    ${!ok&&q.type==='multipleChoice'?`<div style="margin-top:6px;font-size:.88rem;color:var(--text-light)">Richtig: ${q.options.find(o=>o.correct)?.text}</div>`:''}
+    ${!ok&&q.type==='trueFalse'?`<div style="margin-top:6px;font-size:.88rem;color:var(--text-light)">Richtig: ${q.correct?'Wahr':'Falsch'}</div>`:''}
+    ${!ok&&q.type==='calculation'?`<div style="margin-top:6px;font-size:.88rem;color:var(--text-light)">Richtig: ${q.correctAnswer} ${q.unit||''}</div>`:''}
+  </div>`;
+}
+
+function checkQ(q) {
+  const a=state.answers[q.id]; if (a===undefined) return null;
+  if (q.type==='multipleChoice') return a===q.options.find(o=>o.correct)?.id;
+  if (q.type==='trueFalse') return a===q.correct;
+  if (q.type==='calculation') { const n=parseFloat(a); return !isNaN(n)&&Math.abs(n-q.correctAnswer)<=(q.tolerance||0.01); }
+  return null;
+}
+
+// ---- FILL BLANK INIT (DOM-based to avoid innerHTML issues) ----
+function initFillBlanks() {
+  document.querySelectorAll('.fb-slot').forEach(slot => {
+    const qid = slot.dataset.qid, bid = slot.dataset.bid;
+    const v = (state.answers[qid]||{})[bid]||'';
+    const inp = document.createElement('input');
+    inp.type = 'text';
+    inp.className = 'fill-blank-input';
+    inp.value = v;
+    inp.placeholder = '...';
+    inp.autocomplete = 'off';
+    inp.setAttribute('autocorrect', 'off');
+    inp.spellcheck = false;
+    inp.addEventListener('input', function() {
+      if (!state.answers[qid]) state.answers[qid] = {};
+      state.answers[qid][bid] = this.value;
+    });
+    slot.replaceWith(inp);
+  });
+}
+
+// ---- INTERACTIONS ----
+function selectMC(qid,oid) { state.answers[qid]=oid; haptic('light'); if(state.currentQuiz?.antiCheat)AntiCheat.recordAnswerTime(qid); render(); }
+function selectTF(qid,v) { state.answers[qid]=v; haptic('light'); if(state.currentQuiz?.antiCheat)AntiCheat.recordAnswerTime(qid); render(); }
+function updateBlank(el) { const q=el.dataset.qid,b=el.dataset.bid; if(!state.answers[q])state.answers[q]={}; state.answers[q][b]=el.value; }
+function updateMatch(el) { const q=el.dataset.qid,p=el.dataset.pid; if(!state.answers[q])state.answers[q]={}; state.answers[q][p]=el.value; }
+function moveSort(qid,from,dir) { const o=state.answers[qid]; if(!o)return; const to=from+dir; if(to<0||to>=o.length)return; [o[from],o[to]]=[o[to],o[from]]; haptic('light'); render(); }
+function updateCalc(qid,v) { state.answers[qid]=v; }
+function nextQ() { if(state.currentQuestionIndex<state.questionOrder.length-1){state.currentQuestionIndex++;haptic('light');render();window.scrollTo(0,0);} }
+function prevQ() { if(state.currentQuestionIndex>0){state.currentQuestionIndex--;haptic('light');render();window.scrollTo(0,0);} }
+
+function updateTimer() {
+  const el=document.getElementById('timer');
+  if (!el) return;
+  const isUrgent=state.timeRemaining<=30, isWarn=state.timeRemaining<=60;
+  el.className='timer'+(isUrgent?' urgent':isWarn?' warning':'');
+  el.innerHTML=`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg> ${formatTime(state.timeRemaining)}`;
+}
+
+function confirmSubmit() {
+  const total=state.questionOrder.length;
+  const answered=state.questionOrder.filter(qi=>{const q=state.currentQuiz.questions[qi];return state.answers[q.id]!==undefined}).length;
+  const un=total-answered;
+  const msg = un>0 ? `${un} Frage${un>1?'n':''} nicht beantwortet. Trotzdem abgeben?` : 'Test wirklich abgeben?';
+  state.isSubmitting = true;
+  if (!confirm(msg)) { state.isSubmitting = false; return; }
+  submitQuiz();
+}
+
+// ---- SUBMIT ----
+async function submitQuiz() {
+  if(state.submitted) return;
+  if(state.timerInterval)clearInterval(state.timerInterval);
+  state.submitted=true;
+  document.body.classList.remove('quiz-active','urgent-mode');
+  if(document.fullscreenElement) document.exitFullscreen().catch(()=>{});
+
+  const quiz=state.currentQuiz;
+  let score=0, maxScore=0;
+  state.questionOrder.forEach(qi=>{
+    const q=quiz.questions[qi]; maxScore+=q.points;
+    if(q.type==='multipleChoice'){ if(state.answers[q.id]===q.options.find(o=>o.correct)?.id)score+=q.points; }
+    if(q.type==='trueFalse'){ if(state.answers[q.id]===q.correct)score+=q.points; }
+    if(q.type==='fillBlank'){ const a=state.answers[q.id]||{}; let c=0; q.blanks.forEach(b=>{if(checkBlankAnswer(a[b.id]||'',b.answer,b.accepted))c++}); score+=Math.round((c/q.blanks.length)*q.points); }
+    if(q.type==='matching'){ const a=state.answers[q.id]||{}; let c=0; q.pairs.forEach(p=>{if(a[p.id]===p.right)c++}); score+=Math.round((c/q.pairs.length)*q.points); }
+    if(q.type==='sorting'){ const o=state.answers[q.id]||[]; let c=0; q.items.forEach(it=>{if(o.indexOf(it.id)===it.correctPosition)c++}); score+=Math.round((c/q.items.length)*q.points); }
+    if(q.type==='calculation'){ const n=parseFloat(state.answers[q.id]); if(!isNaN(n)&&Math.abs(n-q.correctAnswer)<=(q.tolerance||0.01))score+=q.points; }
+  });
+
+  state.score=score; state.maxScore=maxScore;
+  const elapsed=Math.round((Date.now()-state.startTime)/1000);
+  const resultCode=AntiCheat.generateResultCode(quiz,state.user,score,maxScore);
+  state.resultCode=resultCode;
+  const startTimeISO = new Date(state.startTime).toISOString();
+  const endTimeISO = new Date().toISOString();
+
+  const result = {
+    userName:state.user.name, userEmail:state.user.email, userClass:state.user.class||'',
+    quizId:quiz.id, quizTitle:quiz.title, score, maxScore,
+    percentage:Math.round((score/maxScore)*100), trustScore:state.antiCheat.trustScore,
+    antiCheatEvents:state.antiCheat.events.length, antiCheatLog:state.antiCheat.events,
+    ntaActive:state.ntaActive, resultCode, timestamp:new Date().toISOString(), elapsed,
+    startTime: startTimeISO, endTime: endTimeISO,
+  };
+
+  storeResult(result);
+  localStorage.setItem('qz_answers_' + quiz.id + '_' + state.user.id, JSON.stringify(state.answers));
+  state.allResults=getStoredResults();
+  if(!quiz.allowMultipleAttempts) markQuizDone(quiz.id, state.user.id);
+
+  // Send to Google Sheets
+  state._sheetsResult = await sendToGoogleSheets(result);
+
+  AntiCheat.cleanup();
+  haptic('heavy');
+  state.screen='results';
+  render();
+}
+
+// ---- RESULTS ----
+function renderResults() {
+  const pct=Math.round((state.score/state.maxScore)*100);
+  const ts=state.antiCheat.trustScore;
+  const trustCol=ts>=80?'var(--success)':ts>=50?'var(--warning)':'var(--danger)';
+  const trustLbl=ts>=80?'Hoch':ts>=50?'Mittel':'Niedrig';
+  const elapsed=Math.round((Date.now()-state.startTime)/1000);
+  const startFormatted=new Date(state.startTime).toLocaleTimeString('de-AT',{hour:'2-digit',minute:'2-digit'});
+  const endFormatted=new Date().toLocaleTimeString('de-AT',{hour:'2-digit',minute:'2-digit'});
+  let grad='var(--gradient-success)'; if(pct<50)grad='var(--gradient-warm)'; else if(pct<80)grad='var(--gradient-cool)';
+  const sheets=state._sheetsResult;
+
+  return `
+    <div class="screen">
+      <div class="result-hero" style="background:${grad}">
+        <div class="result-score">${state.score}/${state.maxScore}</div>
+        <div class="result-pct">${pct}%</div>
+        <div class="result-quiz-title">${state.currentQuiz.title} — ${state.user.name}</div>
+        <div class="result-bar"><div class="result-bar-fill" style="width:${pct}%"></div></div>
+      </div>
+
+      <div class="card">
+        <div class="stat-row"><span class="stat-label">Beginn</span><span class="stat-value">${startFormatted}</span></div>
+        <div class="stat-row"><span class="stat-label">Ende</span><span class="stat-value">${endFormatted}</span></div>
+        <div class="stat-row"><span class="stat-label">Dauer</span><span class="stat-value">${formatTime(elapsed)}</span></div>
+        <div class="stat-row"><span class="stat-label">Fragen</span><span class="stat-value">${state.questionOrder.length}</span></div>
+        ${state.ntaActive?'<div class="stat-row"><span class="stat-label">NTA</span><span class="stat-value badge badge-yellow">+50% Zeit</span></div>':''}
+        ${state.currentQuiz.antiCheat?`
+          <div class="trust-meter">
+            <div class="trust-circle" style="background:${trustCol}">${ts}</div>
+            <div>
+              <div style="font-weight:600">Vertrauens-Score: ${trustLbl}</div>
+              <div style="font-size:.82rem;color:var(--text-light)">${state.antiCheat.events.length} Ereignis${state.antiCheat.events.length!==1?'se':''}</div>
+            </div>
+          </div>`:''}
+      </div>
+
+      ${CONFIG.googleSheetsUrl ? `
+        <div style="text-align:center;margin:8px 0">
+          ${sheets?.ok ?
+            '<span class="sheets-status sheets-ok">Ergebnis gespeichert</span>' :
+            '<span class="sheets-status sheets-err">Speicherung fehlgeschlagen</span>'}
+        </div>` : ''}
+
+      <div class="card" style="text-align:center;padding:24px">
+        <p style="font-size:.95rem;color:var(--text-light);margin-bottom:0">
+          Dein Ergebnis wurde gespeichert.<br>
+          Die Korrektur mit den richtigen Antworten wird nach Abgabe aller Schüler freigeschaltet.
+        </p>
+      </div>
+
+      <button class="btn btn-primary btn-block btn-lg" onclick="logout()" style="margin-top:8px">Fertig</button>
+    </div>`;
+}
+
+// ---- TEACHER DASHBOARD ----
+function renderTeacherDashboard() {
+  const r=state.allResults;
+  const uniq=[...new Set(r.map(x=>x.userEmail))].length;
+  const avg=r.length>0?Math.round(r.reduce((s,x)=>s+x.percentage,0)/r.length):0;
+  const flagged=r.filter(x=>x.trustScore<50);
+
+  return `
+    <div class="screen">
+      <div class="header">
+        <div class="header-title">
+          <div class="header-icon"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" width="18" height="18"><path d="M18 20V10M12 20V4M6 20v-6"/></svg></div>
+          <div><h2 style="font-size:1rem">Lehrer-Dashboard</h2>
+            <span style="font-size:.82rem;color:var(--text-light)">${r.length} Ergebnis${r.length!==1?'se':''}</span>
+          </div>
+        </div>
+        <button class="btn btn-ghost btn-sm" onclick="logout()">Abmelden</button>
+      </div>
+
+      <div class="teacher-stats">
+        <div class="teacher-stat"><div class="number">${r.length}</div><div class="label">Abgaben</div></div>
+        <div class="teacher-stat"><div class="number">${uniq}</div><div class="label">Schüler</div></div>
+        <div class="teacher-stat"><div class="number">${avg}%</div><div class="label">Durchschnitt</div></div>
+      </div>
+
+      ${flagged.length>0?`<div class="card card-danger" style="margin-bottom:14px">
+        <strong>${flagged.length} auffällige Abgabe${flagged.length>1?'n':''}:</strong>
+        <div style="font-size:.82rem;margin-top:4px">${flagged.map(x=>`${x.userName} (${x.userEmail}): Trust ${x.trustScore}`).join('<br>')}</div>
+      </div>`:''}
+
+      <div class="section-title">Zugangscodes</div>
+      <div class="card" style="padding:12px">
+        <table class="results-table">
+          <thead><tr><th>Quiz</th><th>Code</th><th>Korrektur</th><th>Abgaben</th></tr></thead>
+          <tbody>
+            ${QUIZZES.map(q=>{
+              const cnt=r.filter(x=>x.quizId===q.id).length;
+              return `<tr><td>${q.title}</td><td><strong style="letter-spacing:2px;color:var(--primary)">${q.accessCode}</strong></td><td style="font-size:.78rem;color:var(--text-light)">${q.reviewCode||'\u2014'}</td><td>${cnt}</td></tr>`;
+            }).join('')}
+          </tbody>
+        </table>
+      </div>
+
+      ${r.length>0?`
+        <div class="section-title" style="margin-top:16px">Alle Ergebnisse</div>
+        <div class="card" style="overflow-x:auto;padding:10px">
+          <table class="results-table">
+            <thead><tr><th>Name</th><th>E-Mail</th><th>Quiz</th><th>Pkt.</th><th>%</th><th>Trust</th><th>NTA</th></tr></thead>
+            <tbody>
+              ${r.slice().reverse().map(x=>{
+                const tb=x.trustScore>=80?'badge-green':x.trustScore>=50?'badge-yellow':'badge-red';
+                return `<tr><td style="font-weight:500">${x.userName}</td><td style="font-size:.78rem">${x.userEmail}</td>
+                  <td style="font-size:.78rem">${x.quizTitle}</td><td>${x.score}/${x.maxScore}</td>
+                  <td>${x.percentage}%</td><td><span class="badge ${tb}">${x.trustScore}</span></td>
+                  <td>${x.ntaActive?'<span class="badge badge-yellow">NTA</span>':'—'}</td></tr>`;
+              }).join('')}
+            </tbody>
+          </table>
+        </div>`:'<div class="card" style="text-align:center;color:var(--text-light);padding:32px">Noch keine Ergebnisse.</div>'}
+
+      <button class="btn btn-primary btn-block" style="margin-top:14px" onclick="exportAllResultsToExcel(getStoredResults())">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="18" height="18"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M7 10l5 5 5-5M12 15V3"/></svg>
+        Sammel-Excel exportieren
+      </button>
+      <button class="btn btn-ghost btn-block" style="margin-top:6px;font-size:.82rem"
+        onclick="if(confirm('Alle Ergebnisse löschen?')){localStorage.removeItem('qz_results');state.allResults=[];render()}">
+        Ergebnisse zurücksetzen
+      </button>
+
+      ${!CONFIG.googleSheetsUrl?`
+        <div class="card" style="margin-top:20px;font-size:.82rem;color:var(--text-light)">
+          <strong>Tipp: Automatischer Google Sheets Upload</strong><br>
+          Erstelle ein Google Apps Script und trage die URL in CONFIG.googleSheetsUrl ein.
+          Dann werden Ergebnisse automatisch in eine Google Tabelle geschrieben.
+        </div>`:''}
+    </div>`;
+}
+
+// ---- REVIEW ----
+function renderReview() {
+  const quiz = state.currentQuiz;
+  const stored = JSON.parse(localStorage.getItem('qz_answers_' + quiz.id + '_' + state.user.id) || '{}');
+  const result = getStoredResults().filter(r => r.quizId === quiz.id && r.userEmail === state.user.email).pop();
+  if (!result) return `<div class="screen"><div class="card" style="text-align:center;padding:32px"><p>Kein Ergebnis gefunden.</p><button class="btn btn-secondary" onclick="logout()">Zurück</button></div></div>`;
+
+  const pct = result.percentage;
+  let grad='var(--gradient-success)'; if(pct<50)grad='var(--gradient-warm)'; else if(pct<80)grad='var(--gradient-cool)';
+
+  let questionsHtml = '';
+  (state.questionOrder.length > 0 ? state.questionOrder : quiz.questions.map((_,i)=>i)).forEach((qi, idx) => {
+    const q = quiz.questions[qi];
+    const userAnswer = stored[q.id];
+    let correct = false;
+    let correctText = '';
+    let userText = 'Nicht beantwortet';
+    let partialCount = -1, partialTotal = -1, earnedPoints = -1;
+
+    if (q.type === 'multipleChoice') {
+      const correctOpt = q.options.find(o => o.correct);
+      correctText = correctOpt ? correctOpt.text : '';
+      const userOpt = q.options.find(o => o.id === userAnswer);
+      userText = userOpt ? userOpt.text : 'Nicht beantwortet';
+      correct = userAnswer === correctOpt?.id;
+    } else if (q.type === 'trueFalse') {
+      correctText = q.correct ? 'Wahr' : 'Falsch';
+      userText = userAnswer === true ? 'Wahr' : userAnswer === false ? 'Falsch' : 'Nicht beantwortet';
+      correct = userAnswer === q.correct;
+    } else if (q.type === 'fillBlank') {
+      correctText = q.blanks.map(b => b.answer).join(', ');
+      const ua = userAnswer || {};
+      userText = q.blanks.map(b => ua[b.id] || '\u2014').join(', ');
+      let c = 0;
+      q.blanks.forEach(b => { if (checkBlankAnswer(ua[b.id] || '', b.answer, b.accepted)) c++; });
+      correct = c === q.blanks.length;
+      partialCount = c; partialTotal = q.blanks.length;
+      earnedPoints = Math.round((c / q.blanks.length) * q.points);
+    } else if (q.type === 'matching') {
+      correctText = q.pairs.map(p => p.left + ' \u2192 ' + p.right).join(', ');
+      const ua = userAnswer || {};
+      userText = q.pairs.map(p => p.left + ' \u2192 ' + (ua[p.id] || '\u2014')).join(', ');
+      let c = 0;
+      q.pairs.forEach(p => { if (ua[p.id] === p.right) c++; });
+      correct = c === q.pairs.length;
+      partialCount = c; partialTotal = q.pairs.length;
+      earnedPoints = Math.round((c / q.pairs.length) * q.points);
+    } else if (q.type === 'sorting') {
+      correctText = q.items.sort((a,b) => a.correctPosition - b.correctPosition).map(it => it.text).join(' \u2192 ');
+      const ua = userAnswer || [];
+      userText = ua.map(id => { const it = q.items.find(x => x.id === id); return it ? it.text : '?'; }).join(' \u2192 ') || 'Nicht beantwortet';
+      let c = 0;
+      q.items.forEach(it => { if (ua.indexOf(it.id) === it.correctPosition) c++; });
+      correct = c === q.items.length;
+      partialCount = c; partialTotal = q.items.length;
+      earnedPoints = Math.round((c / q.items.length) * q.points);
+    } else if (q.type === 'calculation') {
+      correctText = q.correctAnswer + ' ' + (q.unit || '');
+      userText = userAnswer ? userAnswer + ' ' + (q.unit || '') : 'Nicht beantwortet';
+      const n = parseFloat(userAnswer);
+      correct = !isNaN(n) && Math.abs(n - q.correctAnswer) <= (q.tolerance || 0.01);
+    }
+
+    const ep = earnedPoints >= 0 ? earnedPoints : (correct ? q.points : 0);
+    const isPartial = !correct && ep > 0;
+    const cardClass = correct ? 'card-success' : isPartial ? 'card-warning' : 'card-danger';
+    const badgeClass = correct ? 'badge-green' : isPartial ? 'badge-orange' : 'badge-red';
+    const partialHint = partialCount >= 0 && !correct ? ` <span style="font-size:.78rem;opacity:.7">(${partialCount}/${partialTotal} richtig)</span>` : '';
+
+    questionsHtml += `
+      <div class="card ${cardClass}" style="margin-bottom:12px">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
+          <span style="font-weight:700;font-size:.88rem">Frage ${idx+1}</span>
+          <span class="badge ${badgeClass}">${ep}/${q.points} P.${partialHint}</span>
+        </div>
+        <p style="font-weight:500;margin-bottom:10px">${q.text.replace(/\{blank\}/g, '___').replace(/\{blank\d+\}/g, '___')}</p>
+        <div style="font-size:.88rem">
+          <div style="margin-bottom:4px"><strong>Deine Antwort:</strong> ${userText}</div>
+          ${!correct ? '<div style="color:var(--success)"><strong>Richtige Antwort:</strong> ' + correctText + '</div>' : ''}
+          ${q.explanation ? '<div style="margin-top:8px;padding:8px;background:rgba(0,0,0,.04);border-radius:6px;font-size:.84rem"><strong>Erklärung:</strong> ' + q.explanation + '</div>' : ''}
+        </div>
+      </div>`;
+  });
+
+  return `
+    <div class="screen">
+      <div class="result-hero" style="background:${grad}">
+        <div class="result-score">${result.score}/${result.maxScore}</div>
+        <div class="result-pct">${pct}%</div>
+        <div class="result-quiz-title">${quiz.title} — Korrektur</div>
+        <div class="result-bar"><div class="result-bar-fill" style="width:${pct}%"></div></div>
+      </div>
+      ${questionsHtml}
+      <button class="btn btn-secondary btn-block" onclick="logout()" style="margin-top:8px">Zurück</button>
+    </div>`;
+}
+
+// ---- NAV ----
+function logout() {
+  AntiCheat.cleanup();
+  document.body.classList.remove('quiz-active','urgent-mode');
+  if(state.timerInterval)clearInterval(state.timerInterval);
+  state.user=null; state.screen='login'; state.currentQuiz=null;
+  state.answers={}; state.submitted=false; state.ntaActive=false;
+  render();
+}
+
+// ---- INIT ----
+render();
+</script>
+</body>
+</html>
