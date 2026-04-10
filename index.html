@@ -9,26 +9,50 @@
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 :root{
-  --primary:#4f46e5;--primary-light:#818cf8;--primary-dark:#3730a3;--primary-bg:#eef2ff;
-  --success:#059669;--success-light:#d1fae5;
-  --warning:#d97706;--warning-light:#fef3c7;
-  --danger:#dc2626;--danger-light:#fee2e2;
-  --bg:#f1f5f9;--surface:#fff;--text:#1e293b;--text-light:#64748b;--text-lighter:#94a3b8;
-  --border:#e2e8f0;--border-light:#f1f5f9;
-  --radius:16px;--radius-sm:10px;--radius-xs:6px;
-  --shadow:0 1px 3px rgba(0,0,0,.08);--shadow-md:0 4px 12px rgba(0,0,0,.08);
-  --shadow-lg:0 8px 30px rgba(0,0,0,.12);
-  --gradient:linear-gradient(135deg,#4f46e5 0%,#7c3aed 50%,#a855f7 100%);
+  /* Futuristic Physics/Tech Theme - Dark with Cyan/Neon accents */
+  --primary:#06b6d4;--primary-light:#22d3ee;--primary-dark:#0891b2;--primary-bg:rgba(6,182,212,.12);
+  --success:#10b981;--success-light:rgba(16,185,129,.15);
+  --warning:#f59e0b;--warning-light:rgba(245,158,11,.15);
+  --danger:#ef4444;--danger-light:rgba(239,68,68,.15);
+  --accent1:#3b82f6;--accent2:#a855f7;--accent3:#06b6d4;--accent4:#ec4899;
+  --bg:#070b16;--bg-2:#0a1020;
+  --surface:rgba(17,24,39,.72);--surface-solid:#111827;--surface-2:#1a2238;
+  --text:#e5ecf5;--text-light:#94a3b8;--text-lighter:#64748b;
+  --border:rgba(56,89,137,.28);--border-light:rgba(56,89,137,.15);--border-glow:rgba(6,182,212,.45);
+  --radius:18px;--radius-sm:12px;--radius-xs:8px;
+  --shadow:0 2px 14px rgba(0,0,0,.4),0 0 0 1px rgba(56,89,137,.15);
+  --shadow-md:0 4px 24px rgba(0,0,0,.5),0 0 0 1px rgba(56,89,137,.2);
+  --shadow-lg:0 12px 40px rgba(0,0,0,.55),0 0 0 1px rgba(56,89,137,.25);
+  --glow:0 0 24px rgba(6,182,212,.35);
+  --glow-strong:0 0 40px rgba(6,182,212,.55);
+  --gradient:linear-gradient(135deg,#06b6d4 0%,#3b82f6 50%,#a855f7 100%);
   --gradient-warm:linear-gradient(135deg,#f59e0b 0%,#ef4444 100%);
-  --gradient-cool:linear-gradient(135deg,#06b6d4 0%,#4f46e5 100%);
-  --gradient-success:linear-gradient(135deg,#059669 0%,#10b981 100%);
+  --gradient-cool:linear-gradient(135deg,#06b6d4 0%,#3b82f6 100%);
+  --gradient-success:linear-gradient(135deg,#06b6d4 0%,#10b981 100%);
+  --gradient-fun:linear-gradient(135deg,#22d3ee 0%,#a855f7 50%,#ec4899 100%);
+  --gradient-neon:linear-gradient(135deg,#22d3ee 0%,#3b82f6 100%);
   --tr:.2s cubic-bezier(.4,0,.2,1);
-  --font:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,'Helvetica Neue',sans-serif;
+  --font:'Inter','Segoe UI',system-ui,-apple-system,BlinkMacSystemFont,Roboto,sans-serif;
+  --font-mono:'JetBrains Mono','SF Mono',SFMono-Regular,Consolas,monospace;
 }
 html{font-size:16px;-webkit-text-size-adjust:100%}
 body{font-family:var(--font);background:var(--bg);color:var(--text);line-height:1.6;
   min-height:100dvh;overflow-x:hidden;-webkit-tap-highlight-color:transparent;
-  transition:background .3s,color .3s}
+  transition:background .3s,color .3s;position:relative;
+  background-image:
+    radial-gradient(ellipse 80% 50% at 50% -10%, rgba(6,182,212,.12), transparent 60%),
+    radial-gradient(ellipse 60% 40% at 80% 100%, rgba(168,85,247,.10), transparent 60%),
+    radial-gradient(ellipse 60% 40% at 20% 90%, rgba(59,130,246,.08), transparent 60%),
+    linear-gradient(180deg,#070b16 0%,#0a1020 100%);
+  background-attachment:fixed}
+/* subtle tech grid overlay */
+body::before{content:'';position:fixed;inset:0;z-index:0;pointer-events:none;
+  background-image:
+    linear-gradient(rgba(56,189,248,.04) 1px,transparent 1px),
+    linear-gradient(90deg,rgba(56,189,248,.04) 1px,transparent 1px);
+  background-size:48px 48px;mask-image:radial-gradient(ellipse 80% 60% at 50% 40%,#000 40%,transparent 90%);
+  -webkit-mask-image:radial-gradient(ellipse 80% 60% at 50% 40%,#000 40%,transparent 90%)}
+.app{position:relative;z-index:1}
 .quiz-active{-webkit-user-select:none;user-select:none}
 
 /* Layout */
@@ -39,253 +63,366 @@ body{font-family:var(--font);background:var(--bg);color:var(--text);line-height:
 @keyframes pulse{0%,100%{transform:scale(1)}50%{transform:scale(1.04)}}
 @keyframes shake{0%,100%{transform:translateX(0)}25%{transform:translateX(-3px)}75%{transform:translateX(3px)}}
 @keyframes spin{to{transform:rotate(360deg)}}
-@keyframes glow{0%,100%{box-shadow:0 0 5px rgba(79,70,229,.3)}50%{box-shadow:0 0 20px rgba(79,70,229,.5)}}
+@keyframes glow{0%,100%{box-shadow:0 0 8px rgba(6,182,212,.3)}50%{box-shadow:0 0 28px rgba(6,182,212,.6)}}
 @keyframes urgentPulse{0%,100%{background:var(--danger)}50%{background:#b91c1c}}
 @keyframes borderFlash{0%,100%{border-color:var(--danger)}50%{border-color:transparent}}
+@keyframes neonPulse{0%,100%{box-shadow:0 0 12px rgba(6,182,212,.35),inset 0 0 0 1px rgba(6,182,212,.3)}
+  50%{box-shadow:0 0 24px rgba(6,182,212,.55),inset 0 0 0 1px rgba(6,182,212,.5)}}
+@keyframes scanLine{0%{transform:translateY(-100%)}100%{transform:translateY(100%)}}
 
 /* Header */
 .header{display:flex;align-items:center;justify-content:space-between;padding:14px 0;
-  border-bottom:1px solid var(--border);margin-bottom:16px}
+  border-bottom:1px solid var(--border);margin-bottom:16px;position:relative}
+.header::after{content:'';position:absolute;left:0;right:0;bottom:-1px;height:1px;
+  background:linear-gradient(90deg,transparent,rgba(6,182,212,.5),transparent)}
 .header-title{display:flex;align-items:center;gap:10px}
+.header-title h1{font-size:1.1rem;font-weight:700;letter-spacing:.3px}
 .header-icon{width:36px;height:36px;border-radius:10px;background:var(--gradient);
   display:flex;align-items:center;justify-content:center;color:#fff;
-  box-shadow:0 2px 8px rgba(79,70,229,.25)}
+  box-shadow:0 0 20px rgba(6,182,212,.4),inset 0 0 0 1px rgba(255,255,255,.15)}
 
 /* Cards */
-.card{background:var(--surface);border-radius:var(--radius);padding:20px;
-  box-shadow:var(--shadow);margin-bottom:16px;border:1px solid var(--border);transition:var(--tr)}
-.card-accent{border-left:4px solid var(--primary)}
-.card-warning{border-left:4px solid var(--warning);background:var(--warning-light)}
-.card-danger{border-left:4px solid var(--danger);background:var(--danger-light)}
-.card-success{border-left:4px solid var(--success);background:var(--success-light)}
-.card-warning{border-left:4px solid var(--warning);background:var(--warning-light)}
+.card{background:var(--surface);border-radius:var(--radius);padding:22px;
+  box-shadow:var(--shadow);margin-bottom:16px;border:1px solid var(--border);transition:var(--tr);
+  backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);position:relative;overflow:hidden}
+.card::before{content:'';position:absolute;inset:0;border-radius:var(--radius);pointer-events:none;
+  background:
+    linear-gradient(135deg,rgba(6,182,212,.10) 0%,transparent 40%),
+    radial-gradient(ellipse 70% 50% at 0% 0%,rgba(34,211,238,.08),transparent 60%),
+    radial-gradient(ellipse 60% 40% at 100% 100%,rgba(168,85,247,.06),transparent 60%);
+  opacity:.9;z-index:0}
+/* HUD Corner Brackets - neon Ecken wie auf einem Interface */
+.card::after{content:'';position:absolute;inset:8px;pointer-events:none;z-index:0;
+  background:
+    linear-gradient(#22d3ee,#22d3ee) top left / 14px 1.5px no-repeat,
+    linear-gradient(#22d3ee,#22d3ee) top left / 1.5px 14px no-repeat,
+    linear-gradient(#22d3ee,#22d3ee) top right / 14px 1.5px no-repeat,
+    linear-gradient(#22d3ee,#22d3ee) top right / 1.5px 14px no-repeat,
+    linear-gradient(#22d3ee,#22d3ee) bottom left / 14px 1.5px no-repeat,
+    linear-gradient(#22d3ee,#22d3ee) bottom left / 1.5px 14px no-repeat,
+    linear-gradient(#22d3ee,#22d3ee) bottom right / 14px 1.5px no-repeat,
+    linear-gradient(#22d3ee,#22d3ee) bottom right / 1.5px 14px no-repeat;
+  opacity:.55;filter:drop-shadow(0 0 4px rgba(34,211,238,.55))}
+.card>*{position:relative;z-index:1}
+
+/* Particle field canvas - fixed, low z-index */
+.particle-canvas{position:fixed;inset:0;width:100%;height:100%;z-index:0;pointer-events:none;
+  opacity:.8;mix-blend-mode:screen}
+.card-accent{border-left:2px solid transparent;background-image:linear-gradient(var(--surface),var(--surface)),linear-gradient(180deg,#06b6d4,#a855f7);
+  background-origin:border-box;background-clip:padding-box,border-box;border:1px solid transparent;border-left-width:3px}
+.card-warning{border-color:rgba(245,158,11,.35);background:linear-gradient(135deg,rgba(245,158,11,.08),rgba(17,24,39,.72));box-shadow:0 0 20px rgba(245,158,11,.12),var(--shadow)}
+.card-danger{border-color:rgba(239,68,68,.35);background:linear-gradient(135deg,rgba(239,68,68,.08),rgba(17,24,39,.72));box-shadow:0 0 20px rgba(239,68,68,.12),var(--shadow)}
+.card-success{border-color:rgba(16,185,129,.35);background:linear-gradient(135deg,rgba(16,185,129,.08),rgba(17,24,39,.72));box-shadow:0 0 20px rgba(16,185,129,.12),var(--shadow)}
 
 /* Buttons */
 .btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;
   padding:10px 20px;border-radius:var(--radius-sm);font-weight:600;font-size:.95rem;
-  transition:var(--tr);border:none;cursor:pointer;line-height:1.4;position:relative}
+  transition:var(--tr);border:none;cursor:pointer;line-height:1.4;position:relative;
+  letter-spacing:.2px}
 .btn:active:not(:disabled){transform:scale(.97)}
-.btn:disabled{opacity:.45;cursor:not-allowed;transform:none}
-.btn-primary{background:var(--gradient);color:#fff;box-shadow:0 2px 8px rgba(79,70,229,.25)}
-.btn-primary:hover:not(:disabled){box-shadow:0 4px 16px rgba(79,70,229,.35);transform:translateY(-1px)}
-.btn-secondary{background:var(--surface);color:var(--text);border:1px solid var(--border)}
-.btn-secondary:hover:not(:disabled){background:var(--bg);border-color:var(--primary)}
-.btn-danger{background:var(--danger);color:#fff}
-.btn-success{background:var(--gradient-success);color:#fff}
+.btn:disabled{opacity:.4;cursor:not-allowed;transform:none;filter:saturate(.4)}
+.btn-primary{background:var(--gradient);color:#fff;
+  box-shadow:0 0 20px rgba(6,182,212,.35),inset 0 0 0 1px rgba(255,255,255,.18);
+  text-shadow:0 1px 2px rgba(0,0,0,.3)}
+.btn-primary:hover:not(:disabled){box-shadow:0 0 32px rgba(6,182,212,.55),inset 0 0 0 1px rgba(255,255,255,.25);transform:translateY(-1px)}
+.btn-secondary{background:rgba(17,24,39,.6);color:var(--text);border:1px solid var(--border);
+  backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px)}
+.btn-secondary:hover:not(:disabled){background:rgba(17,24,39,.85);border-color:var(--primary);
+  box-shadow:0 0 16px rgba(6,182,212,.25)}
+.btn-danger{background:var(--danger);color:#fff;box-shadow:0 0 18px rgba(239,68,68,.4)}
+.btn-success{background:var(--gradient-success);color:#fff;box-shadow:0 0 20px rgba(16,185,129,.35)}
 .btn-ghost{background:transparent;color:var(--primary);padding:8px 12px}
-.btn-ghost:hover{background:var(--primary-bg)}
+.btn-ghost:hover{background:var(--primary-bg);box-shadow:0 0 12px rgba(6,182,212,.2)}
 .btn-block{display:flex;width:100%}
 .btn-lg{padding:14px 28px;font-size:1.05rem;border-radius:var(--radius)}
 .btn-sm{padding:8px 14px;font-size:.85rem;border-radius:var(--radius-xs)}
 
 /* Badges */
 .badge{display:inline-flex;align-items:center;gap:4px;padding:4px 10px;
-  border-radius:20px;font-size:.8rem;font-weight:600;white-space:nowrap}
-.badge-blue{background:var(--primary-bg);color:var(--primary)}
-.badge-green{background:var(--success-light);color:var(--success)}
-.badge-yellow{background:var(--warning-light);color:var(--warning)}
-.badge-red{background:var(--danger-light);color:var(--danger)}
-.badge-orange{background:#fff3e0;color:#e65100}
-.badge-gray{background:var(--bg);color:var(--text-light)}
+  border-radius:20px;font-size:.8rem;font-weight:600;white-space:nowrap;
+  border:1px solid transparent}
+.badge-blue{background:var(--primary-bg);color:var(--primary-light);border-color:rgba(6,182,212,.35)}
+.badge-green{background:var(--success-light);color:#34d399;border-color:rgba(16,185,129,.35)}
+.badge-yellow{background:var(--warning-light);color:#fbbf24;border-color:rgba(245,158,11,.35)}
+.badge-red{background:var(--danger-light);color:#f87171;border-color:rgba(239,68,68,.35)}
+.badge-orange{background:rgba(249,115,22,.12);color:#fb923c;border-color:rgba(249,115,22,.35)}
+.badge-gray{background:rgba(148,163,184,.08);color:var(--text-light);border-color:rgba(148,163,184,.2)}
 
 /* Login */
 .login-screen{display:flex;flex-direction:column;align-items:center;justify-content:center;
-  min-height:90dvh;text-align:center;padding:20px}
-.login-logo{width:72px;height:72px;border-radius:20px;background:var(--gradient);
-  display:flex;align-items:center;justify-content:center;margin-bottom:16px;
-  box-shadow:var(--shadow-lg);animation:glow 3s infinite}
-.login-screen h1{font-size:1.7rem;font-weight:800;margin-bottom:2px;
-  background:var(--gradient);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
-.login-subtitle{color:var(--text-light);margin-bottom:24px;font-size:.95rem}
-.login-form{width:100%;max-width:360px}
+  min-height:90dvh;text-align:center;padding:20px;position:relative;z-index:1}
+.bg-canvas{position:fixed;inset:0;width:100%;height:100%;z-index:0;pointer-events:none;opacity:.85}
+.login-hero{background:linear-gradient(135deg,rgba(6,182,212,.18) 0%,rgba(59,130,246,.12) 50%,rgba(168,85,247,.18) 100%);
+  color:#fff;padding:32px 32px 28px;border-radius:var(--radius);
+  margin-bottom:22px;width:100%;max-width:380px;position:relative;overflow:hidden;
+  backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);
+  border:1px solid rgba(6,182,212,.35);
+  box-shadow:0 0 40px rgba(6,182,212,.25),0 20px 60px rgba(0,0,0,.5),inset 0 1px 0 rgba(255,255,255,.1)}
+.login-hero::before{content:'';position:absolute;top:-50%;right:-30%;width:180px;height:180px;
+  background:radial-gradient(circle,rgba(34,211,238,.4),transparent 70%);border-radius:50%;filter:blur(30px)}
+.login-hero::after{content:'';position:absolute;bottom:-40%;left:-20%;width:160px;height:160px;
+  background:radial-gradient(circle,rgba(168,85,247,.35),transparent 70%);border-radius:50%;filter:blur(30px)}
+.login-hero>*{position:relative;z-index:1}
+.login-icon{display:inline-flex;margin-bottom:12px;animation:atom-spin 12s linear infinite;
+  filter:drop-shadow(0 0 12px rgba(34,211,238,.6))}
+@keyframes atom-spin{from{transform:rotate(0)}to{transform:rotate(360deg)}}
+.login-screen h1{font-size:1.75rem;font-weight:800;margin-bottom:4px;color:#fff;
+  -webkit-text-fill-color:#fff;letter-spacing:.5px;
+  text-shadow:0 0 24px rgba(6,182,212,.6)}
+.login-subtitle{color:var(--text-light);margin-bottom:24px;font-size:.95rem;letter-spacing:.2px}
+.submit-spinner{width:44px;height:44px;border:3px solid rgba(6,182,212,.2);border-top-color:#22d3ee;
+  border-radius:50%;animation:spin .8s linear infinite;box-shadow:0 0 16px rgba(6,182,212,.4)}
+.login-form{width:100%;max-width:380px}
 .login-field{margin-bottom:14px;text-align:left}
-.login-field label{font-size:.8rem;font-weight:600;color:var(--text-light);display:block;margin-bottom:4px;text-transform:uppercase;letter-spacing:.5px}
-.login-input{width:100%;padding:12px 14px;border:2px solid var(--border);border-radius:var(--radius-sm);
-  font-size:1rem;font-family:inherit;transition:var(--tr);background:var(--surface);color:var(--text)}
-.login-input:focus{border-color:var(--primary);outline:none;box-shadow:0 0 0 3px rgba(79,70,229,.12)}
+.login-field label{font-size:.72rem;font-weight:700;color:var(--primary-light);display:block;margin-bottom:6px;
+  text-transform:uppercase;letter-spacing:1.5px}
+.login-input{width:100%;padding:13px 16px;border:1px solid var(--border);border-radius:var(--radius-sm);
+  font-size:1rem;font-family:inherit;transition:var(--tr);
+  background:rgba(10,16,32,.7);color:var(--text);
+  backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px)}
+.login-input:focus{border-color:var(--primary);outline:none;
+  box-shadow:0 0 0 3px rgba(6,182,212,.18),0 0 20px rgba(6,182,212,.25);
+  background:rgba(10,16,32,.85)}
 .login-input::placeholder{color:var(--text-lighter)}
-.login-select{width:100%;padding:12px 14px;border:2px solid var(--border);border-radius:var(--radius-sm);
-  font-size:1rem;font-family:inherit;background:var(--surface);cursor:pointer;
+.login-select{width:100%;padding:13px 16px;border:1px solid var(--border);border-radius:var(--radius-sm);
+  font-size:1rem;font-family:inherit;background:rgba(10,16,32,.7);cursor:pointer;
   appearance:none;-webkit-appearance:none;color:var(--text);
-  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%2364748b' stroke-width='2'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");
-  background-repeat:no-repeat;background-position:right 12px center;padding-right:32px}
-.login-select:focus{border-color:var(--primary);outline:none}
-.login-error{color:var(--danger);font-size:.85rem;padding:10px 14px;background:var(--danger-light);
-  border-radius:var(--radius-xs);font-weight:500;margin-bottom:12px;animation:shake .3s}
-.login-info{margin-top:20px;font-size:.78rem;color:var(--text-lighter);max-width:300px}
-.demo-link{color:var(--primary);font-size:.85rem;cursor:pointer;text-decoration:underline;text-underline-offset:3px}
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%2322d3ee' stroke-width='2'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");
+  background-repeat:no-repeat;background-position:right 14px center;padding-right:36px;
+  backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px)}
+.login-select:focus{border-color:var(--primary);outline:none;box-shadow:0 0 0 3px rgba(6,182,212,.18)}
+.login-select option{background:#0a1020;color:var(--text)}
+.login-error{color:#fca5a5;font-size:.85rem;padding:10px 14px;background:rgba(239,68,68,.1);
+  border:1px solid rgba(239,68,68,.35);border-radius:var(--radius-xs);font-weight:500;margin-bottom:12px;
+  animation:shake .3s;box-shadow:0 0 16px rgba(239,68,68,.15)}
+.login-info{margin-top:20px;font-size:.78rem;color:var(--text-lighter);max-width:320px;letter-spacing:.2px}
+.demo-link{color:var(--primary-light);font-size:.85rem;cursor:pointer;text-decoration:underline;text-underline-offset:3px}
 
 /* Quiz Start */
 .quiz-start-card{text-align:center;padding:28px 20px}
 .quiz-start-stats{display:flex;justify-content:center;gap:24px;margin:20px 0;flex-wrap:wrap}
-.quiz-start-stat .number{font-size:1.7rem;font-weight:800;color:var(--primary)}
-.quiz-start-stat .label{font-size:.78rem;color:var(--text-light);margin-top:2px}
-.quiz-hints{text-align:left;padding:14px 16px;background:var(--bg);border-radius:var(--radius-sm);
-  font-size:.88rem;margin-bottom:20px}
-.quiz-hints li{margin-bottom:5px;padding-left:4px;list-style:none}
-.quiz-hints li::before{content:"→ ";color:var(--primary);font-weight:700}
-.nta-section{background:var(--warning-light);border:2px solid var(--warning);
-  border-radius:var(--radius-sm);padding:14px;margin:14px 0;text-align:left}
-.nta-section label{display:flex;align-items:center;gap:10px;cursor:pointer;font-weight:500}
+.quiz-start-stat .number{font-size:1.8rem;font-weight:800;
+  background:var(--gradient-neon);-webkit-background-clip:text;background-clip:text;
+  -webkit-text-fill-color:transparent;color:transparent;font-family:var(--font-mono)}
+.quiz-start-stat .label{font-size:.72rem;color:var(--text-light);margin-top:2px;
+  text-transform:uppercase;letter-spacing:1px}
+.quiz-hints{text-align:left;padding:14px 16px;background:rgba(10,16,32,.5);
+  border:1px solid var(--border);border-radius:var(--radius-sm);
+  font-size:.88rem;margin-bottom:20px;backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px)}
+.quiz-hints li{margin-bottom:5px;padding-left:4px;list-style:none;color:var(--text)}
+.quiz-hints li::before{content:"→ ";color:var(--primary-light);font-weight:700;text-shadow:0 0 8px rgba(6,182,212,.5)}
+.nta-section{background:rgba(245,158,11,.08);border:1px solid rgba(245,158,11,.4);
+  border-radius:var(--radius-sm);padding:14px;margin:14px 0;text-align:left;
+  box-shadow:0 0 16px rgba(245,158,11,.1)}
+.nta-section label{display:flex;align-items:center;gap:10px;cursor:pointer;font-weight:500;color:#fbbf24}
 .nta-section input[type="checkbox"]{width:22px;height:22px;accent-color:var(--warning)}
 .nta-section .nta-info{font-size:.82rem;color:var(--text-light);margin-top:6px;margin-left:32px}
 .mode-badge{display:inline-flex;align-items:center;gap:4px;padding:3px 8px;
   border-radius:6px;font-size:.72rem;font-weight:700;text-transform:uppercase;letter-spacing:.5px}
-.mode-test{background:var(--danger-light);color:var(--danger)}
-.mode-practice{background:var(--success-light);color:var(--success)}
+.mode-test{background:var(--danger-light);color:#fca5a5;border:1px solid rgba(239,68,68,.4)}
+.mode-practice{background:var(--success-light);color:#34d399;border:1px solid rgba(16,185,129,.4)}
 
 /* Quiz Screen */
 .quiz-header{display:flex;justify-content:space-between;align-items:center;padding:10px 0;margin-bottom:6px}
-.quiz-question-counter{font-weight:600;color:var(--text-light);font-size:.88rem}
+.quiz-question-counter{font-weight:700;color:var(--primary-light);font-size:.85rem;
+  font-family:var(--font-mono);letter-spacing:.5px}
 
-/* TIMER — large, always visible */
-.timer{display:inline-flex;align-items:center;gap:5px;padding:8px 16px;
-  border-radius:24px;font-weight:800;font-size:1.1rem;background:var(--surface);
-  border:2px solid var(--border);color:var(--text);letter-spacing:.5px;
-  box-shadow:var(--shadow)}
-.timer.warning{background:var(--warning-light);color:var(--warning);border-color:var(--warning);
-  font-size:1.15rem;animation:pulse .8s infinite}
+/* TIMER - large, always visible */
+.timer{display:inline-flex;align-items:center;gap:5px;padding:8px 18px;
+  border-radius:24px;font-weight:800;font-size:1.15rem;
+  background:rgba(10,16,32,.8);border:1px solid var(--primary);color:var(--primary-light);
+  letter-spacing:1px;font-family:var(--font-mono);
+  box-shadow:0 0 20px rgba(6,182,212,.35),inset 0 0 0 1px rgba(6,182,212,.2);
+  backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);
+  text-shadow:0 0 8px rgba(34,211,238,.6)}
+.timer.warning{background:rgba(245,158,11,.15);color:#fbbf24;border-color:var(--warning);
+  font-size:1.2rem;animation:pulse .8s infinite;
+  box-shadow:0 0 24px rgba(245,158,11,.45);text-shadow:0 0 8px rgba(251,191,36,.6)}
 .timer.urgent{background:var(--danger);color:#fff;border-color:var(--danger);
-  font-size:1.25rem;animation:urgentPulse .5s infinite;
-  box-shadow:0 0 20px rgba(220,38,38,.4)}
+  font-size:1.3rem;animation:urgentPulse .5s infinite;
+  box-shadow:0 0 28px rgba(239,68,68,.6);text-shadow:0 0 8px rgba(255,255,255,.5)}
 
-.progress-bar{height:6px;background:var(--border);border-radius:3px;overflow:hidden}
-.progress-fill{height:100%;background:var(--gradient);border-radius:3px;transition:width .4s cubic-bezier(.4,0,.2,1)}
-.question-type-badge{font-size:.72rem;color:var(--text-lighter);font-weight:500;
-  padding:4px 8px;background:var(--bg);border-radius:var(--radius-xs)}
+.progress-bar{height:4px;background:rgba(6,182,212,.1);border-radius:3px;overflow:hidden;
+  border:1px solid var(--border-light)}
+.progress-fill{height:100%;background:var(--gradient);border-radius:3px;
+  transition:width .4s cubic-bezier(.4,0,.2,1);box-shadow:0 0 12px rgba(6,182,212,.5)}
+.question-type-badge{font-size:.68rem;color:var(--primary-light);font-weight:600;
+  padding:4px 10px;background:rgba(6,182,212,.08);border-radius:var(--radius-xs);
+  border:1px solid rgba(6,182,212,.25);text-transform:uppercase;letter-spacing:1px}
 
-/* URGENT MODE — last 30 seconds */
+/* URGENT MODE - last 30 seconds */
 .urgent-mode .app{border:4px solid var(--danger);border-radius:var(--radius);
   margin:4px;padding-top:8px;animation:borderFlash 1s infinite}
 .urgent-mode .question-nav{border-top:3px solid var(--danger)}
 
-/* MC Options — large touch targets */
+/* MC Options - large touch targets */
 .option{display:flex;align-items:center;gap:12px;padding:16px;
-  border-radius:var(--radius-sm);border:2px solid var(--border);margin-bottom:10px;
-  cursor:pointer;transition:var(--tr);background:var(--surface);min-height:56px}
+  border-radius:var(--radius-sm);border:1px solid var(--border);margin-bottom:10px;
+  cursor:pointer;transition:var(--tr);background:rgba(10,16,32,.5);min-height:56px;
+  backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px);position:relative;overflow:hidden}
+.option:hover:not(.correct):not(.incorrect){border-color:rgba(6,182,212,.4);background:rgba(10,16,32,.7)}
 .option:active{transform:scale(.98)}
-.option.selected{border-color:var(--primary);background:var(--primary-bg);
-  box-shadow:0 0 0 3px rgba(79,70,229,.15)}
-.option.correct{border-color:var(--success);background:var(--success-light)}
-.option.incorrect{border-color:var(--danger);background:var(--danger-light)}
-.option-letter{width:34px;height:34px;border-radius:8px;background:var(--bg);
+.option.selected{border-color:var(--primary);background:rgba(6,182,212,.12);
+  box-shadow:0 0 0 1px rgba(6,182,212,.5),0 0 20px rgba(6,182,212,.3)}
+.option.correct{border-color:var(--success);background:rgba(16,185,129,.12);
+  box-shadow:0 0 20px rgba(16,185,129,.25)}
+.option.incorrect{border-color:var(--danger);background:rgba(239,68,68,.12);
+  box-shadow:0 0 20px rgba(239,68,68,.25)}
+.option-letter{width:34px;height:34px;border-radius:8px;background:rgba(6,182,212,.08);
   display:flex;align-items:center;justify-content:center;font-weight:700;
-  font-size:.9rem;color:var(--text-light);flex-shrink:0;transition:var(--tr)}
-.option.selected .option-letter{background:var(--primary);color:#fff}
-.option-text{flex:1;font-size:.95rem}
+  font-size:.9rem;color:var(--primary-light);flex-shrink:0;transition:var(--tr);
+  border:1px solid rgba(6,182,212,.25);font-family:var(--font-mono)}
+.option.selected .option-letter{background:var(--gradient);color:#fff;border-color:transparent;
+  box-shadow:0 0 16px rgba(6,182,212,.5)}
+.option-text{flex:1;font-size:.95rem;color:var(--text)}
 
-/* True/False — big buttons */
+/* True/False - big buttons */
 .tf-options{display:grid;grid-template-columns:1fr 1fr;gap:12px}
-.tf-option{padding:24px 16px;border-radius:var(--radius-sm);border:2px solid var(--border);
+.tf-option{padding:26px 16px;border-radius:var(--radius-sm);border:1px solid var(--border);
   cursor:pointer;text-align:center;font-weight:700;font-size:1.15rem;
-  transition:var(--tr);background:var(--surface);min-height:70px;
-  display:flex;align-items:center;justify-content:center}
+  transition:var(--tr);background:rgba(10,16,32,.5);min-height:72px;
+  display:flex;align-items:center;justify-content:center;color:var(--text);
+  backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px);letter-spacing:.5px}
+.tf-option:hover{border-color:rgba(6,182,212,.4)}
 .tf-option:active{transform:scale(.97)}
-.tf-option.selected{border-color:var(--primary);background:var(--primary-bg);
-  box-shadow:0 0 0 3px rgba(79,70,229,.15)}
+.tf-option.selected{border-color:var(--primary);background:rgba(6,182,212,.12);
+  color:var(--primary-light);text-shadow:0 0 12px rgba(34,211,238,.5);
+  box-shadow:0 0 0 1px rgba(6,182,212,.5),0 0 24px rgba(6,182,212,.3)}
 
 /* Fill Blank */
-.fill-blank-text{font-size:1rem;line-height:2.2}
-.fill-blank-input{border:none;border-bottom:2px solid var(--primary);padding:6px 8px;
-  font-size:1rem;font-family:inherit;width:130px;text-align:center;
-  background:var(--primary-bg);border-radius:4px 4px 0 0;outline:none}
-.fill-blank-input:focus{border-bottom-color:var(--primary-dark);box-shadow:0 2px 0 var(--primary)}
+.fill-blank-text{font-size:1rem;line-height:2.3;color:var(--text)}
+.fill-blank-input{border:none;border-bottom:2px solid var(--primary);padding:6px 10px;
+  font-size:1rem;font-family:var(--font-mono);width:140px;text-align:center;
+  background:rgba(6,182,212,.1);border-radius:4px 4px 0 0;outline:none;color:var(--primary-light);
+  box-shadow:0 4px 12px rgba(6,182,212,.15)}
+.fill-blank-input:focus{border-bottom-color:var(--primary-light);
+  box-shadow:0 0 0 3px rgba(6,182,212,.15),0 4px 16px rgba(6,182,212,.3);
+  background:rgba(6,182,212,.18)}
 
 /* Matching */
 .match-container{display:flex;flex-direction:column;gap:10px}
-.match-item{display:flex;align-items:center;gap:6px}
-.match-left{flex:1;padding:10px 12px;background:var(--bg);border-radius:var(--radius-xs);
-  font-weight:500;font-size:.88rem;border:1px solid var(--border)}
-.match-arrow{color:var(--text-lighter);font-size:1.1rem;flex-shrink:0}
-.match-select{flex:1;padding:10px 12px;border-radius:var(--radius-xs);
-  border:2px solid var(--border);font-size:.88rem;font-family:inherit;
-  background:var(--surface);cursor:pointer;appearance:none;-webkit-appearance:none;
-  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%2364748b' stroke-width='2'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");
-  background-repeat:no-repeat;background-position:right 8px center;padding-right:28px}
-.match-select:focus{border-color:var(--primary);outline:none}
+.match-item{display:flex;align-items:center;gap:8px}
+.match-left{flex:1;padding:11px 14px;background:rgba(10,16,32,.6);border-radius:var(--radius-xs);
+  font-weight:500;font-size:.88rem;border:1px solid var(--border);color:var(--text)}
+.match-arrow{color:var(--primary);font-size:1.15rem;flex-shrink:0;
+  text-shadow:0 0 8px rgba(6,182,212,.6)}
+.match-select{flex:1;padding:11px 14px;border-radius:var(--radius-xs);
+  border:1px solid var(--border);font-size:.88rem;font-family:inherit;color:var(--text);
+  background:rgba(10,16,32,.6);cursor:pointer;appearance:none;-webkit-appearance:none;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%2322d3ee' stroke-width='2'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");
+  background-repeat:no-repeat;background-position:right 10px center;padding-right:30px}
+.match-select:focus{border-color:var(--primary);outline:none;box-shadow:0 0 0 3px rgba(6,182,212,.15)}
+.match-select option{background:#0a1020;color:var(--text)}
 
 /* Sorting */
 .sort-container{display:flex;flex-direction:column;gap:8px}
 .sort-item{display:flex;align-items:center;gap:8px;padding:12px;
-  background:var(--surface);border:2px solid var(--border);border-radius:var(--radius-xs)}
-.sort-item .sort-number{width:28px;height:28px;border-radius:50%;background:var(--primary-bg);
+  background:rgba(10,16,32,.6);border:1px solid var(--border);border-radius:var(--radius-xs);color:var(--text)}
+.sort-item .sort-number{width:28px;height:28px;border-radius:50%;background:rgba(6,182,212,.15);
   display:flex;align-items:center;justify-content:center;font-weight:700;font-size:.85rem;
-  color:var(--primary);flex-shrink:0}
+  color:var(--primary-light);flex-shrink:0;border:1px solid rgba(6,182,212,.35);font-family:var(--font-mono)}
 .sort-item .sort-text{flex:1;font-size:.92rem}
 .sort-buttons{display:flex;gap:4px;flex-shrink:0}
 .sort-btn{width:36px;height:36px;border-radius:8px;border:1px solid var(--border);
-  background:var(--surface);cursor:pointer;display:flex;align-items:center;
+  background:rgba(10,16,32,.5);cursor:pointer;display:flex;align-items:center;color:var(--text);
   justify-content:center;font-size:.85rem;transition:var(--tr)}
-.sort-btn:active{background:var(--primary-bg);border-color:var(--primary)}
-.sort-btn:disabled{opacity:.25;cursor:not-allowed}
+.sort-btn:hover:not(:disabled){background:rgba(6,182,212,.1);border-color:var(--primary)}
+.sort-btn:active{background:rgba(6,182,212,.2);border-color:var(--primary);box-shadow:0 0 12px rgba(6,182,212,.35)}
+.sort-btn:disabled{opacity:.2;cursor:not-allowed}
 
 /* Calculation */
-.calc-input{width:100%;padding:16px;border:2px solid var(--border);border-radius:var(--radius-sm);
-  font-size:1.15rem;font-family:inherit;text-align:center}
-.calc-input:focus{border-color:var(--primary);outline:none;box-shadow:0 0 0 3px rgba(79,70,229,.12)}
-.calc-unit{font-size:.88rem;color:var(--text-light);text-align:center;margin-top:6px}
+.calc-input{width:100%;padding:16px;border:1px solid var(--border);border-radius:var(--radius-sm);
+  font-size:1.2rem;font-family:var(--font-mono);text-align:center;
+  background:rgba(10,16,32,.6);color:var(--primary-light)}
+.calc-input:focus{border-color:var(--primary);outline:none;
+  box-shadow:0 0 0 3px rgba(6,182,212,.15),0 0 20px rgba(6,182,212,.25)}
+.calc-unit{font-size:.82rem;color:var(--text-light);text-align:center;margin-top:6px;
+  text-transform:uppercase;letter-spacing:1px}
 
 /* Navigation */
-.question-nav{position:fixed;bottom:0;left:0;right:0;background:var(--surface);
+.question-nav{position:fixed;bottom:0;left:0;right:0;
+  background:rgba(7,11,22,.85);
   border-top:1px solid var(--border);padding:12px 16px;
   padding-bottom:max(12px,env(safe-area-inset-bottom));
-  box-shadow:0 -2px 10px rgba(0,0,0,.06);z-index:100}
+  box-shadow:0 -8px 30px rgba(0,0,0,.5),0 -1px 0 rgba(6,182,212,.2);z-index:100;
+  backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px)}
+.question-nav::before{content:'';position:absolute;left:0;right:0;top:0;height:1px;
+  background:linear-gradient(90deg,transparent,rgba(6,182,212,.6),transparent)}
 .question-nav .inner{max-width:640px;margin:0 auto;display:flex;
   justify-content:space-between;align-items:center;gap:12px}
 
 /* Results */
-.result-hero{text-align:center;padding:28px 20px;background:var(--gradient);
-  border-radius:var(--radius);color:#fff;margin-bottom:16px;box-shadow:var(--shadow-lg)}
-.result-score{font-size:3rem;font-weight:900;line-height:1}
-.result-pct{font-size:1.2rem;font-weight:600;opacity:.9;margin-top:4px}
-.result-quiz-title{font-size:.88rem;opacity:.7;margin-top:8px}
-.result-bar{height:8px;background:rgba(255,255,255,.2);border-radius:4px;margin-top:16px;overflow:hidden}
-.result-bar-fill{height:100%;border-radius:4px;background:rgba(255,255,255,.8);transition:width 1s}
-.stat-row{display:flex;justify-content:space-between;padding:10px 0;border-bottom:1px solid var(--border-light)}
+.result-hero{text-align:center;padding:32px 20px;background:var(--gradient);
+  border-radius:var(--radius);color:#fff;margin-bottom:16px;
+  box-shadow:0 0 40px rgba(6,182,212,.35),0 20px 60px rgba(0,0,0,.5),inset 0 1px 0 rgba(255,255,255,.15);
+  position:relative;overflow:hidden;border:1px solid rgba(6,182,212,.4)}
+.result-hero::before{content:'';position:absolute;inset:0;
+  background:radial-gradient(ellipse at top,rgba(255,255,255,.2),transparent 60%);
+  pointer-events:none}
+.result-hero>*{position:relative;z-index:1}
+.result-score{font-size:3.2rem;font-weight:900;line-height:1;font-family:var(--font-mono);
+  text-shadow:0 0 24px rgba(255,255,255,.4)}
+.result-pct{font-size:1.25rem;font-weight:700;opacity:.95;margin-top:4px;font-family:var(--font-mono)}
+.result-quiz-title{font-size:.88rem;opacity:.8;margin-top:8px;letter-spacing:.5px}
+.result-bar{height:6px;background:rgba(255,255,255,.15);border-radius:3px;margin-top:18px;overflow:hidden}
+.result-bar-fill{height:100%;border-radius:3px;background:rgba(255,255,255,.9);transition:width 1s;
+  box-shadow:0 0 12px rgba(255,255,255,.6)}
+.stat-row{display:flex;justify-content:space-between;padding:11px 0;border-bottom:1px solid var(--border-light)}
 .stat-row:last-child{border-bottom:none}
-.stat-label{color:var(--text-light);font-size:.88rem;display:flex;align-items:center;gap:6px}
-.stat-value{font-weight:600;font-size:.88rem}
-.trust-meter{display:flex;align-items:center;gap:14px;margin-top:14px;padding:14px;background:var(--bg);border-radius:var(--radius-sm)}
+.stat-label{color:var(--text-light);font-size:.85rem;display:flex;align-items:center;gap:6px}
+.stat-value{font-weight:700;font-size:.88rem;color:var(--text);font-family:var(--font-mono)}
+.trust-meter{display:flex;align-items:center;gap:14px;margin-top:14px;padding:14px;
+  background:rgba(10,16,32,.5);border:1px solid var(--border);border-radius:var(--radius-sm)}
 .trust-circle{width:48px;height:48px;border-radius:50%;display:flex;align-items:center;
-  justify-content:center;font-weight:800;font-size:1.1rem;color:#fff;flex-shrink:0}
-.result-code-box{background:var(--bg);padding:14px;border-radius:var(--radius-sm);
-  font-family:'SF Mono',SFMono-Regular,Consolas,monospace;font-size:.82rem;
-  word-break:break-all;border:2px dashed var(--primary);text-align:center;
-  -webkit-user-select:all;user-select:all;letter-spacing:.5px}
+  justify-content:center;font-weight:800;font-size:1.1rem;color:#fff;flex-shrink:0;
+  font-family:var(--font-mono);box-shadow:0 0 20px currentColor}
+.result-code-box{background:rgba(10,16,32,.6);padding:14px;border-radius:var(--radius-sm);
+  font-family:var(--font-mono);font-size:.82rem;color:var(--primary-light);
+  word-break:break-all;border:1px dashed var(--primary);text-align:center;
+  -webkit-user-select:all;user-select:all;letter-spacing:.5px;
+  box-shadow:inset 0 0 20px rgba(6,182,212,.08)}
 
 /* Teacher */
 .teacher-stats{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:16px}
 .teacher-stat{background:var(--surface);border-radius:var(--radius-sm);padding:14px;
-  text-align:center;border:1px solid var(--border)}
-.teacher-stat .number{font-size:1.4rem;font-weight:800;color:var(--primary)}
-.teacher-stat .label{font-size:.72rem;color:var(--text-light);margin-top:2px}
-.results-table{width:100%;border-collapse:collapse;font-size:.82rem}
-.results-table th{text-align:left;padding:8px 6px;border-bottom:2px solid var(--border);
-  font-weight:600;color:var(--text-light);font-size:.75rem;text-transform:uppercase;letter-spacing:.5px}
-.results-table td{padding:8px 6px;border-bottom:1px solid var(--border-light)}
-.results-table tr:hover{background:var(--bg)}
-.section-title{font-size:.95rem;font-weight:700;margin-bottom:10px;display:flex;align-items:center;gap:8px}
+  text-align:center;border:1px solid var(--border);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);
+  box-shadow:var(--shadow)}
+.teacher-stat .number{font-size:1.5rem;font-weight:800;font-family:var(--font-mono);
+  background:var(--gradient-neon);-webkit-background-clip:text;background-clip:text;
+  -webkit-text-fill-color:transparent;color:transparent}
+.teacher-stat .label{font-size:.68rem;color:var(--text-light);margin-top:2px;
+  text-transform:uppercase;letter-spacing:1px}
+.results-table{width:100%;border-collapse:collapse;font-size:.82rem;color:var(--text)}
+.results-table th{text-align:left;padding:10px 6px;border-bottom:1px solid var(--border);
+  font-weight:700;color:var(--primary-light);font-size:.7rem;text-transform:uppercase;letter-spacing:1px}
+.results-table td{padding:10px 6px;border-bottom:1px solid var(--border-light)}
+.results-table tr:hover{background:rgba(6,182,212,.06)}
+.section-title{font-size:.95rem;font-weight:700;margin-bottom:10px;display:flex;align-items:center;gap:8px;color:var(--text);
+  letter-spacing:.3px}
 
 /* Anti-Cheat */
-.anticheat-banner{display:flex;align-items:center;gap:8px;padding:10px 14px;
-  background:var(--primary-bg);border:1px solid var(--primary-light);
-  border-radius:var(--radius-xs);font-size:.82rem;color:var(--primary-dark)}
+.anticheat-banner{display:flex;align-items:center;gap:8px;padding:11px 14px;
+  background:var(--primary-bg);border:1px solid rgba(6,182,212,.4);
+  border-radius:var(--radius-xs);font-size:.82rem;color:var(--primary-light);
+  box-shadow:0 0 16px rgba(6,182,212,.12)}
 #ac-warning{position:fixed;top:0;left:0;right:0;background:var(--warning);color:#fff;
   text-align:center;padding:14px 16px;font-weight:600;font-size:.9rem;z-index:9999;
-  transform:translateY(-100%);transition:transform .3s ease;box-shadow:var(--shadow-lg)}
+  transform:translateY(-100%);transition:transform .3s ease;box-shadow:0 8px 24px rgba(245,158,11,.4)}
 #ac-warning.show{transform:translateY(0)}
 
 /* Spinner */
-.spinner{width:28px;height:28px;border:3px solid var(--border);
-  border-top-color:var(--primary);border-radius:50%;animation:spin .7s linear infinite}
-.spinner-overlay{position:fixed;inset:0;background:rgba(255,255,255,.85);z-index:9999;
-  display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px}
+.spinner{width:28px;height:28px;border:3px solid rgba(6,182,212,.15);
+  border-top-color:var(--primary-light);border-radius:50%;animation:spin .7s linear infinite;
+  box-shadow:0 0 16px rgba(6,182,212,.35)}
+.spinner-overlay{position:fixed;inset:0;background:rgba(7,11,22,.88);z-index:9999;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;
+  backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);color:var(--text)}
 
 /* Google Sheets status */
 .sheets-status{font-size:.78rem;padding:6px 10px;border-radius:var(--radius-xs);
-  display:inline-flex;align-items:center;gap:4px;font-weight:500}
-.sheets-ok{background:var(--success-light);color:var(--success)}
-.sheets-err{background:var(--danger-light);color:var(--danger)}
+  display:inline-flex;align-items:center;gap:4px;font-weight:500;border:1px solid transparent}
+.sheets-ok{background:var(--success-light);color:#34d399;border-color:rgba(16,185,129,.35)}
+.sheets-err{background:var(--danger-light);color:#f87171;border-color:rgba(239,68,68,.35)}
 
 /* Responsive */
 @media(max-width:480px){
@@ -418,7 +555,7 @@ const QUIZZES = [
   },
   {
     id: 'energie-uebung-01',
-    title: 'Energie — Übung',
+    title: 'Energie - Übung',
     subject: 'Physik',
     class: '7A',
     accessCode: 'ENER7A',
@@ -448,7 +585,7 @@ const QUIZZES = [
   ,
   {
     id: 'welle-teilchen-7a-01',
-    title: 'Welle und Teilchen — Kapitel 33',
+    title: 'Welle und Teilchen - Kapitel 33',
     subject: 'Physik',
     class: '7A',
     accessCode: 'QUANT7A',
@@ -465,11 +602,11 @@ const QUIZZES = [
       {
         id: 'wt-q1', type: 'multipleChoice', points: 2,
         text: 'Beim Doppelspalt-Experiment schickt man Licht durch zwei schmale Spalte auf einen Schirm. Wäre Licht ausschließlich ein Teilchenstrom, würde man genau zwei helle Streifen erwarten. Tatsächlich beobachtet man aber viele helle und dunkle Streifen. Warum widerlegt dieses Muster die reine Teilchentheorie des Lichts?',
-        explanation: 'Das Streifenmuster entsteht durch Interferenz — ein reines Wellenphänomen. Teilchen würden sich nicht gegenseitig verstärken oder auslöschen.',
+        explanation: 'Das Streifenmuster entsteht durch Interferenz - ein reines Wellenphänomen. Teilchen würden sich nicht gegenseitig verstärken oder auslöschen.',
         options: [
-          { id: 'a', text: 'Weil die vielen Streifen durch Überlagerung von Wellen entstehen — an manchen Stellen verstärken sich die Wellen (hell), an anderen löschen sie sich aus (dunkel).', correct: true },
-          { id: 'b', text: 'Weil die vielen Streifen dadurch entstehen, dass die Lichtteilchen an den Spaltkanten in verschiedene Richtungen abgelenkt werden und sich dabei gleichmäßig verteilen.', correct: false },
-          { id: 'c', text: 'Weil die vielen Streifen dadurch entstehen, dass sich die Lichtteilchen gegenseitig abstoßen und dadurch ein regelmäßiges Muster auf dem Schirm erzeugen.', correct: false },
+          { id: 'a', text: 'Weil die vielen Streifen durch Überlagerung von Wellen entstehen: An manchen Stellen addieren sich die Wellen zu doppelter Amplitude (hell), an anderen heben sich Wellenberg und Wellental exakt auf (dunkel).', correct: true },
+          { id: 'b', text: 'Weil die Lichtteilchen an den Spaltkanten unter verschiedenen Winkeln gestreut werden und sich diese Streurichtungen statistisch so überlagern, dass mehrere gleich helle Streifen entstehen.', correct: false },
+          { id: 'c', text: 'Weil die beiden Spalte wie zwei unabhängige Lichtquellen wirken und sich die Teilchenströme beider Quellen an jeder Stelle des Schirms zur Gesamthelligkeit addieren.', correct: false },
         ]
       },
       {
@@ -483,41 +620,126 @@ const QUIZZES = [
         text: 'Ein Schüler behauptet: „Wenn ich eine rote Lampe einfach heller aufdrehe, haben die roten Photonen irgendwann genauso viel Energie wie blaue." Was ist an dieser Aussage falsch?',
         explanation: 'Die Formel E = h · f zeigt: Die Energie eines einzelnen Photons wird ausschließlich durch seine Frequenz bestimmt. Helligkeit (Intensität) bedeutet mehr Photonen, nicht energiereichere.',
         options: [
-          { id: 'a', text: 'Durch höhere Intensität erhöht sich die Frequenz der Photonen, aber erst ab einer bestimmten Schwelle erreichen sie die Energie blauer Photonen.', correct: false },
-          { id: 'b', text: 'Durch höhere Intensität steigt die Anzahl der Photonen, aber die Energie jedes einzelnen Photons bleibt gleich — sie hängt nur von der Frequenz ab, nicht von der Helligkeit.', correct: true },
-          { id: 'c', text: 'Durch höhere Intensität steigt sowohl die Anzahl als auch die Energie der einzelnen Photonen, aber rote Photonen können die Energie blauer Photonen trotzdem nie überschreiten.', correct: false },
+          { id: 'a', text: 'Bei sehr hoher Intensität überlagern sich die Wellenzüge der einzelnen roten Photonen und bilden effektiv Wellen höherer Frequenz, deren Photonen dann auch höhere Energie tragen.', correct: false },
+          { id: 'b', text: 'Durch höhere Intensität steigt die Anzahl der Photonen, aber die Energie jedes einzelnen Photons bleibt gleich, da sie ausschließlich von der Frequenz abhängt, nicht von der Helligkeit.', correct: true },
+          { id: 'c', text: 'Die Gesamtenergie, die pro Sekunde ankommt, ist bei heller roter Lampe höher. Verteilt man diese Gesamtenergie auf die gleiche Anzahl Photonen wie bei einer schwachen blauen Lampe, ergibt sich pro rotem Photon mindestens die Energie eines blauen.', correct: false },
         ]
       },
       {
         id: 'wt-q4', type: 'matching', points: 4,
-        text: 'Ordne die Begriffe zum Fotoeffekt und zur Quantenphysik korrekt zu (1 Punkt pro richtige Zuordnung):',
-        explanation: 'Beim Fotoeffekt zählt die Energie pro Photon (E = h·f), nicht die Gesamtintensität. Höhere Frequenz bedeutet mehr Energie PRO Photon. Höhere Intensität bedeutet mehr Photonen insgesamt. Ob ein Elektron gelöst wird, hängt nur von der Frequenz ab — nicht von der Helligkeit.',
+        text: 'Ordne jeder Formel bzw. jeder Aussage den zugehörigen Physiker zu (1 Punkt pro richtige Zuordnung):',
+        explanation: 'Planck: E = h · f (Energie eines Lichtquants, 1900). Einstein: Erklärung des Photoeffekts durch Lichtquanten (1905, Nobelpreis 1921). de Broglie: jedes Massenteilchen besitzt eine Wellenlänge (1924). Heisenberg: Unschärferelation Δp · Δx ≥ h/(4π) (1927).',
         pairs: [
-          { id: 'p1', left: 'Energie eines Photons (Formel)', right: 'E = h · f' },
-          { id: 'p2', left: 'Lampe heller drehen', right: 'Mehr Photonen, gleiche Energie pro Photon' },
-          { id: 'p3', left: 'Licht mit höherer Frequenz', right: 'Mehr Energie pro einzelnes Photon' },
-          { id: 'p4', left: 'Elektron beim Fotoeffekt lösen', right: 'Nur die Frequenz des Lichts entscheidet' },
+          { id: 'p1', left: 'E = h · f',                                       right: 'Planck' },
+          { id: 'p2', left: 'Δp · Δx ≥ h / (4π)',                              right: 'Heisenberg' },
+          { id: 'p3', left: 'Erklärung des Photoeffekts durch Lichtquanten',    right: 'Einstein' },
+          { id: 'p4', left: 'Jedes Massenteilchen besitzt eine Wellenlänge',    right: 'de Broglie' },
         ]
       },
       {
         id: 'wt-q5', type: 'multipleChoice', points: 2,
         text: 'De Broglie schlug 1924 vor, dass auch Teilchen wie Elektronen eine Wellenlänge besitzen. 1999 gelang es Wiener Forschern, sogar mit großen C₆₀-Molekülen ein Interferenzmuster zu erzeugen. Warum beobachten wir solche Welleneffekte nicht bei einem Tennisball?',
-        explanation: 'Laut de Broglie hat JEDES Objekt eine Wellenlänge — auch ein Tennisball. Die Formel λ = h/p zeigt: Je größer die Masse (und damit der Impuls), desto kleiner die Wellenlänge. Beim Tennisball ergibt sich ca. 10⁻³⁴ m — das ist milliardenfach kleiner als ein Atomkern.',
+        explanation: 'Laut de Broglie hat JEDES Objekt eine Wellenlänge - auch ein Tennisball. Je größer die Masse und je schneller die Bewegung, desto kleiner wird diese Wellenlänge. Beim Tennisball ergibt sich ca. 10⁻³⁴ m - das ist milliardenfach kleiner als ein Atomkern und daher prinzipiell nicht messbar.',
         options: [
-          { id: 'a', text: 'Weil die de-Broglie-Wellenlänge λ = h/p ist: Je größer Masse und Impuls, desto kleiner λ. Beim Tennisball ist λ ≈ 10⁻³⁴ m — viel zu klein für messbare Interferenz.', correct: true },
-          { id: 'b', text: 'Weil nur subatomare Teilchen wie Elektronen und Protonen eine de-Broglie-Wellenlänge haben — makroskopische Objekte besitzen keine.', correct: false },
-          { id: 'c', text: 'Weil sich der Tennisball zu schnell bewegt, und Welleneffekte nur bei langsamen Objekten auftreten.', correct: false },
-          { id: 'd', text: 'Weil die Gravitationskraft bei großen Objekten die Welleneigenschaften vollständig unterdrückt.', correct: false },
+          { id: 'a', text: 'Weil die Wellenlänge eines Teilchens umso kleiner wird, je größer Masse und Geschwindigkeit sind. Beim Tennisball ist sie rund 10⁻³⁴ m und damit viel zu klein für messbare Interferenz.', correct: true },
+          { id: 'b', text: 'Weil sich die Wellenlängen der vielen Atome im Ball statistisch zu null mitteln. Messbare Interferenz gibt es daher nur bei einzelnen Teilchen, nicht bei zusammengesetzten Objekten.', correct: false },
+          { id: 'c', text: 'Weil die Wärmebewegung der Moleküle im Ball jede feste Wellenlänge sofort zerstört. Ohne Kühlung auf nahe 0 K sind Welleneffekte bei Massenobjekten grundsätzlich nicht beobachtbar.', correct: false },
+          { id: 'd', text: 'Weil nur subatomare Teilchen wie Elektronen und Protonen eine Wellenlänge nach de Broglie besitzen und makroskopische Objekte keine.', correct: false },
         ]
       },
       {
         id: 'wt-q6', type: 'fillBlank', points: 3,
         text: 'Vervollständige die Sätze zur Photonenenergie:\n\nDie Formel lautet: E = {blank1} · f\n\nDas „f" in der Formel steht für die ______ des Lichts: {blank2}\n\nDreht man eine Lampe heller auf, steigt die Anzahl der Photonen. Die ______ eines einzelnen Photons bleibt aber gleich: {blank3}',
-        explanation: 'E = h · f — „h" ist das Plancksche Wirkungsquantum (eine Naturkonstante), „f" die Frequenz. Höhere Intensität = mehr Photonen, aber jedes einzelne Photon hat dieselbe Energie (bestimmt nur durch die Frequenz). Jede Lücke zählt 1 Punkt.',
+        explanation: 'E = h · f - „h" ist das Plancksche Wirkungsquantum (eine Naturkonstante), „f" die Frequenz. Höhere Intensität = mehr Photonen, aber jedes einzelne Photon hat dieselbe Energie (bestimmt nur durch die Frequenz). Jede Lücke zählt 1 Punkt.',
         blanks: [
           { id: 'blank1', answer: 'h', accepted: ['h', 'H', 'planck', 'Planck', 'ℎ', 'plancksches wirkungsquantum'] },
           { id: 'blank2', answer: 'Frequenz', accepted: ['Frequenz', 'frequenz', 'die Frequenz'] },
           { id: 'blank3', answer: 'Energie', accepted: ['Energie', 'energie', 'die Energie', 'E'] },
+        ]
+      },
+    ]
+  }
+  ,
+  {
+    id: 'welle-teilchen-7a-gruppeB',
+    title: 'Welle und Teilchen - Kapitel 33 (Gruppe B)',
+    subject: 'Physik',
+    class: '7A',
+    testDate: '10.04.2026',
+    accessCode: 'QUANTB7A',
+    reviewCode: 'REV-QUANTB7A',
+    mode: 'test',
+    timeLimitMinutes: 6,
+    maxPoints: 10,
+    antiCheat: true,
+    randomizeQuestions: true,
+    randomizeAnswers: true,
+    ntaEnabled: true,
+    allowMultipleAttempts: false,
+    questions: [
+      {
+        id: 'wtb-q1', type: 'multipleChoice', points: 1,
+        text: 'Ein Lehrer argumentiert: „Das Streifenmuster beim Doppelspalt beweist die Wellennatur des Lichts, weil jedes einzelne Lichtteilchen durch beide Spalte gleichzeitig geht und mit sich selbst interferiert." Welche Beurteilung dieser Aussage ist physikalisch am präzisesten?',
+        explanation: 'Das klassische Streifenmuster entsteht durch Überlagerung der Wellen aus beiden Spalten - das ist ein Wellenphänomen. Dass auch einzeln ausgesendete Photonen ein Muster bilden, ist ein zusätzliches quantenmechanisches Phänomen, aber nicht der eigentliche „Beweis" im Schulexperiment. Im 7.-Klass-Rahmen reicht die klassische Erklärung: Wellen aus beiden Spalten überlagern sich.',
+        options: [
+          { id: 'a', text: 'Korrekt im Ergebnis, aber falsch in der Begründung: Das klassische Muster entsteht durch Überlagerung der Wellen aus beiden Spalten, nicht durch „Einzelteilchen, die durch beide Spalte gehen".', correct: true },
+          { id: 'b', text: 'Vollständig korrekt: Ohne Einzelteilchen-Selbstinterferenz gäbe es kein Muster, weil Wellen allein das Streifenmuster nicht erklären können.', correct: false },
+          { id: 'c', text: 'Im Kern korrekt: Die Aussage des Lehrers ist nur leicht vereinfacht, weil jedes einzelne Lichtteilchen tatsächlich durch beide Spalte gleichzeitig gehen muss, sonst entstünde gar kein Streifenmuster.', correct: false },
+        ]
+      },
+      {
+        id: 'wtb-q2', type: 'multipleChoice', points: 1,
+        text: 'An einer dunklen Stelle im Doppelspalt-Muster kommt kein Licht an, obwohl von beiden Spalten Wellen eintreffen. Welche Aussage beschreibt den Vorgang physikalisch korrekt?',
+        explanation: 'Destruktive Interferenz: Die Amplituden sind an jedem Zeitpunkt exakt entgegengesetzt (Wellenberg + Wellental), daher ist die Summe null. Die Energie ist aber nicht verschwunden - sie wandert zu den hellen Maxima. Energieerhaltung bleibt erfüllt.',
+        options: [
+          { id: 'a', text: 'Die beiden Wellen haben an dieser Stelle einen Gangunterschied von einer halben Wellenlänge. Ihre Auslenkungen sind exakt entgegengesetzt und addieren sich zu null. Die Energie wandert dabei zu den hellen Maxima.', correct: true },
+          { id: 'b', text: 'An dunklen Stellen treffen zwar Wellen auf, aber ihre Gesamtenergie ist dort so gering, dass sie vollständig in Wärme im Schirmmaterial umgewandelt wird und kein Licht zurückgeworfen werden kann.', correct: false },
+          { id: 'c', text: 'Die beiden Wellen haben an dieser Stelle einen Gangunterschied von genau einer ganzen Wellenlänge. Ein ganzzahliges Vielfaches der Wellenlänge bedeutet, dass sie sich rechnerisch gegenseitig aufheben.', correct: false },
+        ]
+      },
+      {
+        id: 'wtb-q3', type: 'trueFalse', points: 1,
+        text: 'Im Vakuum bewegt sich rotes Licht genauso schnell wie blaues Licht, auch wenn blaues Licht mehr Energie pro Photon hat.',
+        correct: true,
+        explanation: 'Die Geschwindigkeit im Vakuum ist für alle elektromagnetischen Wellen exakt c ≈ 3·10⁸ m/s. Unterschiedlich sind nur Frequenz und Wellenlänge. Die Energie pro Photon hängt über E = h · f nur von der Frequenz ab, nicht von der Geschwindigkeit.'
+      },
+      {
+        id: 'wtb-q4', type: 'fillBlank', points: 2,
+        text: 'Die Energie eines Photons berechnet man mit der Formel\nE = h · {blank1}\nVerdoppelt man die Frequenz, wird die Energie eines einzelnen Photons {blank2} so groß.',
+        blanks: [
+          { id: 'b1', answer: 'f', accepted: ['f','frequenz','ν','nu','nü'] },
+          { id: 'b2', answer: 'doppelt', accepted: ['doppelt','2-fach','2fach','zweifach','zwei mal','2 mal','2x'] }
+        ],
+        explanation: 'E = h · f (Planck). Die Energie ist proportional zur Frequenz - verdoppelt man f, verdoppelt sich auch E. Die Wellenlänge halbiert sich dabei, aber danach wurde nicht gefragt.'
+      },
+      {
+        id: 'wtb-q5', type: 'matching', points: 3,
+        text: 'Ordne jeder Formel bzw. jeder Aussage den zugehörigen Physiker zu:',
+        pairs: [
+          { id: 'p1', left: 'E = h · f',                                              right: 'Planck' },
+          { id: 'p2', left: 'Δp · Δx ≥ h / (4π)',                                     right: 'Heisenberg' },
+          { id: 'p3', left: 'Jedes Teilchen mit Impuls besitzt eine Wellenlänge',      right: 'de Broglie' },
+        ],
+        explanation: 'Planck: E = h · f verknüpft die Energie eines Photons mit seiner Frequenz. Heisenberg: Δp · Δx ≥ h/(4π) (Unschärferelation, Ort und Impuls eines Quantenobjekts sind prinzipiell nicht gleichzeitig beliebig genau bestimmbar). de Broglie: auch Massenteilchen besitzen eine Wellenlänge.'
+      },
+      {
+        id: 'wtb-q6', type: 'multipleChoice', points: 1,
+        text: 'Eine sehr helle rote Lampe beleuchtet eine Metallplatte - es werden keine Elektronen ausgelöst. Eine schwache UV-Lampe schafft es sofort. Welche Erklärung stützt sich korrekt auf E = h · f und die Ablösearbeit W_A?',
+        explanation: 'Entscheidend ist die Energie pro einzelnem Photon: E_Photon = h·f muss größer sein als W_A, sonst kann kein Elektron ausgelöst werden - unabhängig davon, wie viele rote Photonen ankommen. UV hat höhere Frequenz → höhere Energie pro Photon → über W_A.',
+        options: [
+          { id: 'a', text: 'Jedes UV-Photon trägt wegen der höheren Frequenz mehr Energie als die Ablösearbeit W_A. Rote Photonen haben zu wenig Einzelenergie - auch wenn sehr viele ankommen, reicht keines alleine für die Auslösung.', correct: true },
+          { id: 'b', text: 'Die rote Lampe liefert insgesamt mehr Energie pro Sekunde. Diese Energie wird aber auf viele Photonen verteilt, sodass sich pro Elektron nur die Energie eines einzelnen roten Photons „sammeln" kann - und die ist zu klein.', correct: false },
+          { id: 'c', text: 'UV-Photonen haben kürzere Wellenlänge und können deshalb tiefer ins Metall eindringen. Erst dort, im Innern des Metalls, überwinden sie die Ablösearbeit und schlagen Elektronen heraus.', correct: false },
+        ]
+      },
+      {
+        id: 'wtb-q7', type: 'multipleChoice', points: 1,
+        text: 'Nach de Broglie besitzt jedes Teilchen eine Wellenlänge, die umso kleiner wird, je größer Masse und Geschwindigkeit sind. Für einen Tennisball (m ≈ 58 g, v ≈ 30 m/s) ergibt sich etwa 4 · 10⁻³⁴ m. Welche Folgerung daraus ist physikalisch korrekt?',
+        explanation: 'Die Aussage von de Broglie gilt universell - auch für makroskopische Körper. Aber 10⁻³⁴ m ist rund 20 Größenordnungen kleiner als ein Atomkern (≈10⁻¹⁵ m). Solche Wellenlängen sind prinzipiell nicht messbar - man bräuchte einen „Doppelspalt" mit passendem Abstand, den es nicht gibt. Der Ball verhält sich daher rein klassisch.',
+        options: [
+          { id: 'a', text: 'Die Wellenlänge ist so viele Größenordnungen kleiner als jede Struktur, die man als Beugungsgitter nutzen könnte, dass die Welleneigenschaft grundsätzlich nicht nachweisbar ist. Der Ball verhält sich klassisch.', correct: true },
+          { id: 'b', text: 'Die Aussage von de Broglie gilt für makroskopische Körper nur eingeschränkt. Ab einer gewissen Masse verliert das Teilchen seinen Welleneigenschaften, weshalb die Rechnung für den Ball kein physikalisch sinnvolles Ergebnis liefert.', correct: false },
+          { id: 'c', text: 'Die Wellenlänge ist deshalb so klein, weil sich die Einzelwellen der rund 10²³ Atome im Ball statistisch überlagern. Für ein einzelnes Atom im Ball wäre die Wellenlänge etwa 10²³-fach größer und damit messbar.', correct: false },
         ]
       },
     ]
@@ -556,7 +778,9 @@ function checkBlankAnswer(input, correct, accepted) {
   const inp = input.trim().toLowerCase(), cor = correct.toLowerCase();
   if (inp === cor) return true;
   if (accepted?.map(a => a.toLowerCase()).includes(inp)) return true;
-  if (levenshtein(inp, cor) <= 1 && inp.length >= 2) return true;
+  // Toleranz: 1 Zeichen bei kurzen Wörtern, 2 bei längeren (5+ Buchstaben)
+  const maxDist = cor.length >= 5 ? 2 : 1;
+  if (levenshtein(inp, cor) <= maxDist && inp.length >= 2) return true;
   return false;
 }
 const LETTERS = 'ABCDEFGHIJ';
@@ -566,12 +790,31 @@ function studentIdFromEmail(email) {
   return 'stu_' + hashString(email.toLowerCase().trim()).toString(36);
 }
 
-// Completed tracking
+// Completed tracking (nach Abgabe)
 function isQuizDone(quizId, userId) {
   return localStorage.getItem(`qz_done_${quizId}_${userId}`) === '1';
 }
 function markQuizDone(quizId, userId) {
   localStorage.setItem(`qz_done_${quizId}_${userId}`, '1');
+}
+// Started tracking (beim Klick auf „Test starten", VOR der Abgabe)
+// Verhindert, dass ein Schüler die Fragen ansieht, abbricht und neu startet.
+function isQuizStarted(quizId, userId) {
+  return localStorage.getItem(`qz_started_${quizId}_${userId}`) === '1';
+}
+function markQuizStarted(quizId, userId) {
+  localStorage.setItem(`qz_started_${quizId}_${userId}`, '1');
+}
+// Device-Lock: sobald irgendein User den Quiz auf diesem Gerät gestartet hat,
+// darf kein anderer User (andere Email) denselben Quiz öffnen. Verhindert
+// Bypass via Fake-Email-Preview.
+function getDeviceLock(quizId) {
+  try { return JSON.parse(localStorage.getItem(`qz_device_${quizId}`) || 'null'); }
+  catch { return null; }
+}
+function setDeviceLock(quizId, userId, email) {
+  localStorage.setItem(`qz_device_${quizId}`,
+    JSON.stringify({ userId, email, startedAt: Date.now() }));
 }
 function getStoredResults() {
   try { return JSON.parse(localStorage.getItem('qz_results') || '[]'); } catch { return []; }
@@ -579,6 +822,20 @@ function getStoredResults() {
 function storeResult(r) {
   const all = getStoredResults(); all.push(r);
   localStorage.setItem('qz_results', JSON.stringify(all));
+}
+// Alles zurücksetzen (nur aus Teacher-Dashboard erreichbar)
+function resetAllLocksAndResults() {
+  const keys = [];
+  for (let i = 0; i < localStorage.length; i++) {
+    const k = localStorage.key(i);
+    if (k && (k.startsWith('qz_done_') || k.startsWith('qz_started_') || k.startsWith('qz_device_') || k === 'qz_results')) {
+      keys.push(k);
+    }
+  }
+  keys.forEach(k => localStorage.removeItem(k));
+  state.allResults = [];
+  render();
+  alert(`${keys.length} Einträge gelöscht (Ergebnisse + alle Test-Sperren).`);
 }
 
 // Haptic feedback (mobile)
@@ -631,7 +888,7 @@ async function sendToGoogleSheets(result) {
 // ============================================================
 function exportResultToExcel(result) {
   const data = [
-    ['Quiz Portal — Ergebnis'],
+    ['Quiz Portal - Ergebnis'],
     [],
     ['Feld', 'Wert'],
     ['Name', result.userName], ['E-Mail', result.userEmail],
@@ -658,12 +915,12 @@ function exportResultToExcel(result) {
 function exportAllResultsToExcel(results) {
   if (!results?.length) { alert('Keine Ergebnisse.'); return; }
   const data = [
-    ['Quiz Portal — Sammel-Export', '', '', '', '', '', '', '', '', new Date().toLocaleString('de-AT')],
+    ['Quiz Portal - Sammel-Export', '', '', '', '', '', '', '', '', new Date().toLocaleString('de-AT')],
     [],
     ['Name', 'E-Mail', 'Klasse', 'Quiz', 'Punkte', 'Max', '%', 'Trust', 'Events', 'NTA', 'Datum', 'Code'],
-    ...results.map(r => [r.userName, r.userEmail, r.userClass||'—', r.quizTitle,
+    ...results.map(r => [r.userName, r.userEmail, r.userClass||'-', r.quizTitle,
       r.score, r.maxScore, r.percentage+'%', r.trustScore, r.antiCheatEvents,
-      r.ntaActive?'Ja':'—', new Date(r.timestamp).toLocaleString('de-AT'), r.resultCode])
+      r.ntaActive?'Ja':'-', new Date(r.timestamp).toLocaleString('de-AT'), r.resultCode])
   ];
   const wb = XLSX.utils.book_new();
   const ws = XLSX.utils.aoa_to_sheet(data);
@@ -682,101 +939,60 @@ const AntiCheat = {
   init() {
     state.antiCheat = { events:[], trustScore:100, isFullscreen:false, startedAt:Date.now(),
       lastHeartbeat:Date.now(), lastTouch:Date.now(), warningCount:0,
-      heartbeatInterval:null, touchInterval:null, answerTimestamps:{}, devToolsOpen:false };
+      heartbeatInterval:null, touchInterval:null, answerTimestamps:{}, devToolsOpen:false,
+      lastEventTime:{}, eventCounts:{} };
     const on = (t,e,h) => { t.addEventListener(e,h); this._listeners.push({t,e,h}); };
     const iv = (fn,ms) => { const id=setInterval(fn,ms); this._intervals.push(id); return id; };
+    const active = () => state.screen==='quiz' && !state.submitted && !state.isSubmitting;
 
-    // 1. Visibility (most reliable on mobile)
+    // 1. Visibility - nur echte Tab-Wechsel (zuverlässigster Indikator)
     on(document, 'visibilitychange', () => {
-      if (document.hidden && state.screen==='quiz' && !state.submitted && !state.isSubmitting)
-        this.logEvent('tab_hidden', 'App verlassen / Tab-Wechsel');
+      if (document.hidden && active())
+        this.logEvent('tab_hidden', 'Tab-Wechsel / App verlassen');
     });
 
-    // 2. Page focus (catches iOS app switcher)
-    on(window, 'blur', () => {
-      if (state.screen==='quiz' && !state.submitted && !state.isSubmitting)
-        this.logEvent('window_blur', 'Fenster-Fokus verloren');
-    });
-    on(window, 'pagehide', () => {
-      if (state.screen==='quiz' && !state.submitted && !state.isSubmitting)
-        this.logEvent('page_hide', 'Seite wird verlassen');
-    });
+    // 2. Clipboard - blockieren
+    on(document, 'copy', e => { if (active()) { e.preventDefault(); this.logEvent('copy','Kopieren blockiert'); }});
+    on(document, 'paste', e => { if (active()) { e.preventDefault(); this.logEvent('paste','Einfügen blockiert'); }});
+    on(document, 'contextmenu', e => { if (active()) e.preventDefault(); });
 
-    // 3. Fullscreen
-    on(document, 'fullscreenchange', () => {
-      if (!document.fullscreenElement && state.screen==='quiz' && !state.submitted) {
-        this.logEvent('fullscreen_exit', 'Vollbild verlassen');
-        state.antiCheat.isFullscreen = false;
-      }
-    });
-
-    // 4. Resize / split screen
-    let lastW = window.innerWidth;
-    on(window, 'resize', () => {
-      if (state.screen==='quiz' && !state.submitted) {
-        const w = window.innerWidth;
-        if (Math.abs(w-lastW)>40) this.logEvent('resize', `Resize: ${lastW}→${w}px`);
-        lastW = w;
-      }
-    });
-
-    // 5. Clipboard
-    on(document, 'copy', e => { if (state.screen==='quiz'&&!state.submitted) { e.preventDefault(); this.logEvent('copy','Kopieren blockiert'); }});
-    on(document, 'paste', e => { if (state.screen==='quiz'&&!state.submitted) { e.preventDefault(); this.logEvent('paste','Einfügen blockiert'); }});
-    on(document, 'contextmenu', e => { if (state.screen==='quiz'&&!state.submitted) { e.preventDefault(); }});
-
-    // 6. Keyboard shortcuts
+    // 3. Keyboard shortcuts (Strg+C, DevTools etc.)
     on(document, 'keydown', e => {
-      if (state.screen!=='quiz'||state.submitted) return;
+      if (!active()) return;
       const meta = e.ctrlKey||e.metaKey;
       if ((meta&&'cvuaCVUA'.includes(e.key)) || (meta&&e.shiftKey&&'iIjJ'.includes(e.key)) || e.key==='F12' || e.key==='PrintScreen') {
         e.preventDefault(); this.logEvent('key_blocked', 'Taste: '+e.key);
       }
     });
 
-    // 7. Back button
+    // 4. Back button
     history.pushState(null,'',location.href);
     on(window, 'popstate', () => {
-      if (state.screen==='quiz'&&!state.submitted) {
-        history.pushState(null,'',location.href);
-        this.logEvent('back_btn', 'Zurück blockiert');
-      }
+      if (active()) { history.pushState(null,'',location.href); this.logEvent('back_btn', 'Zurück blockiert'); }
     });
 
-    // 8. Heartbeat
-    iv(() => {
-      if (state.screen==='quiz'&&!state.submitted) {
-        const gap = Date.now()-state.antiCheat.lastHeartbeat;
-        if (gap>5000) this.logEvent('heartbeat', `Aussetzer: ${Math.round(gap/1000)}s`);
-        state.antiCheat.lastHeartbeat = Date.now();
-      }
-    }, 2000);
-
-    // 9. Inactivity (mobile-relevant)
+    // 5. Inactivity - 90 Sekunden Toleranz
     on(document,'touchstart',()=>{state.antiCheat.lastTouch=Date.now()});
     on(document,'mousedown',()=>{state.antiCheat.lastTouch=Date.now()});
+    on(document,'mousemove',()=>{state.antiCheat.lastTouch=Date.now()});
     on(document,'keydown',()=>{state.antiCheat.lastTouch=Date.now()});
+    on(document,'scroll',()=>{state.antiCheat.lastTouch=Date.now()},true);
     iv(() => {
-      if (state.screen==='quiz'&&!state.submitted) {
+      if (active()) {
         const idle = Date.now()-state.antiCheat.lastTouch;
-        if (idle>40000) { this.logEvent('inactive',`Inaktiv: ${Math.round(idle/1000)}s`); state.antiCheat.lastTouch=Date.now(); }
+        if (idle>90000) { this.logEvent('inactive',`Inaktiv: ${Math.round(idle/1000)}s`); state.antiCheat.lastTouch=Date.now(); }
       }
-    }, 8000);
+    }, 10000);
 
-    // 10. DevTools
+    // 6. DevTools (nur Desktop relevant)
     iv(() => {
-      if (state.screen!=='quiz'||state.submitted) return;
-      if (window.outerWidth-window.innerWidth>150||window.outerHeight-window.innerHeight>150) {
+      if (!active()) return;
+      if (window.outerWidth-window.innerWidth>200||window.outerHeight-window.innerHeight>200) {
         if (!state.antiCheat.devToolsOpen) { state.antiCheat.devToolsOpen=true; this.logEvent('devtools','DevTools erkannt'); }
       } else state.antiCheat.devToolsOpen=false;
-    }, 2000);
+    }, 3000);
 
-    // 11. Orientation
-    on(window,'orientationchange',()=>{
-      if (state.screen==='quiz'&&!state.submitted) this.logEvent('orientation','Rotation');
-    });
-
-    // 12. Screen wake lock (keep screen on during test)
+    // 7. Screen wake lock
     this.requestWakeLock();
   },
 
@@ -785,12 +1001,24 @@ const AntiCheat = {
   },
 
   logEvent(type, detail) {
+    // Cooldown: gleicher Event-Typ innerhalb von 5 Sekunden wird ignoriert
+    const now = Date.now();
+    if (state.antiCheat.lastEventTime[type] && (now - state.antiCheat.lastEventTime[type]) < 5000) return;
+    state.antiCheat.lastEventTime[type] = now;
+
+    // Event zählen (max Strafe pro Typ)
+    state.antiCheat.eventCounts[type] = (state.antiCheat.eventCounts[type]||0) + 1;
+
     state.antiCheat.events.push({ type, detail, timestamp:new Date().toISOString(),
-      questionIndex:state.currentQuestionIndex, elapsed:Math.round((Date.now()-state.antiCheat.startedAt)/1000) });
-    const pen = {tab_hidden:15,window_blur:10,page_hide:15,fullscreen_exit:20,resize:10,
-      copy:10,paste:10,key_blocked:8,back_btn:5,heartbeat:10,inactive:5,devtools:20,
-      orientation:3,fast_answer:5};
-    state.antiCheat.trustScore = Math.max(0, state.antiCheat.trustScore-(pen[type]||5));
+      questionIndex:state.currentQuestionIndex, elapsed:Math.round((now-state.antiCheat.startedAt)/1000) });
+
+    // Faire Penalties: erste Events milder, wiederholte härter
+    const basePen = {tab_hidden:8, copy:8, paste:8, key_blocked:5, back_btn:3,
+      inactive:3, devtools:15, fast_answer:3};
+    const base = basePen[type] || 3;
+    // Ab dem 3. gleichen Event wird die Strafe verdoppelt
+    const multiplier = state.antiCheat.eventCounts[type] >= 3 ? 2 : 1;
+    state.antiCheat.trustScore = Math.max(0, state.antiCheat.trustScore - (base * multiplier));
     state.antiCheat.warningCount++;
     haptic('error');
     this.showWarning(type);
@@ -801,22 +1029,20 @@ const AntiCheat = {
     const sec=(now-last)/1000;
     state.antiCheat.answerTimestamps[qid]=sec;
     state.antiCheat.answerTimestamps._last=now;
-    if (sec<2&&state.currentQuestionIndex>0) this.logEvent('fast_answer',`${sec.toFixed(1)}s`);
+    // fast_answer entfernt: Schüler dürfen ihre Meinung jederzeit ändern
   },
 
   showWarning(type) {
-    const msg = {tab_hidden:'Tab-Wechsel erkannt!',window_blur:'Fensterwechsel erkannt!',
-      page_hide:'App verlassen erkannt!',fullscreen_exit:'Vollbild verlassen!',
-      resize:'Split-Screen erkannt!',copy:'Kopieren blockiert!',paste:'Einfügen blockiert!',
-      key_blocked:'Tastenkombination blockiert!',back_btn:'Zurück blockiert!',
-      heartbeat:'Verbindungspause erkannt!',inactive:'Inaktivität erkannt!',
-      devtools:'Entwicklertools erkannt!',orientation:'Rotation erkannt!',
-      fast_answer:'Sehr schnelle Antwort!'};
+    const msg = {tab_hidden:'Bitte bleib im Quiz-Tab.',
+      copy:'Kopieren ist nicht erlaubt.',paste:'Einfügen ist nicht erlaubt.',
+      key_blocked:'Diese Taste ist gesperrt.',back_btn:'Bitte nicht zurück navigieren.',
+      inactive:'Bist du noch da?',
+      devtools:'Entwicklertools sind nicht erlaubt.'};
     const el = document.getElementById('ac-warning');
     if (!el) return;
-    el.textContent = '⚠ ' + (msg[type]||'Auffälliges Verhalten!') + ' — wird protokolliert.';
+    el.textContent = (msg[type]||'Auffälliges Verhalten erkannt.');
     el.classList.add('show');
-    setTimeout(()=>el.classList.remove('show'), 3500);
+    setTimeout(()=>el.classList.remove('show'), 3000);
   },
 
   requestFullscreen() {
@@ -860,14 +1086,24 @@ function render() {
 // ---- LOGIN ----
 function renderLogin() {
   return `
+    <canvas id="bg-canvas" class="bg-canvas"></canvas>
     <div class="login-screen screen">
-      <div class="login-logo"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" width="32" height="32"><path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"/></svg></div>
-      <h1>Quiz Portal</h1>
-      <p class="login-subtitle">Physik — AHS Oberstufe</p>
+      <div class="login-hero">
+        <div class="login-icon">
+          <svg width="64" height="64" viewBox="0 0 60 60" fill="none" stroke="#22d3ee" stroke-width="1.6">
+            <ellipse cx="30" cy="30" rx="26" ry="10"/>
+            <ellipse cx="30" cy="30" rx="26" ry="10" transform="rotate(60 30 30)"/>
+            <ellipse cx="30" cy="30" rx="26" ry="10" transform="rotate(120 30 30)"/>
+            <circle cx="30" cy="30" r="3.5" fill="#22d3ee" stroke="none"/>
+          </svg>
+        </div>
+        <h1>Physik Quiz</h1>
+        <p style="opacity:.85;font-size:.9rem;color:#94a3b8;letter-spacing:2px;text-transform:uppercase;font-weight:600">GWiku18 Wien</p>
+      </div>
       <div class="login-form">
-        <div class="card" style="text-align:left;padding:24px">
+        <div class="card" style="text-align:left;padding:24px;border-radius:var(--radius);box-shadow:var(--shadow-md)">
           <div class="login-field">
-            <label>Schul-E-Mail-Adresse</label>
+            <label>Schul-E-Mail</label>
             <input type="email" id="login-email" class="login-input"
               placeholder="vorname.nachname@${CONFIG.schoolDomain}"
               autocomplete="email" inputmode="email" spellcheck="false"
@@ -884,15 +1120,15 @@ function renderLogin() {
           </div>
           <div id="login-error" style="display:none"></div>
           <button class="btn btn-primary btn-block btn-lg" onclick="studentLogin()" style="margin-top:4px">
-            Anmelden
+            Quiz starten
           </button>
         </div>
-        <div style="text-align:center;margin-top:12px">
-          <a class="demo-link" onclick="showReviewLogin()" style="margin-bottom:8px;display:block">Korrektur ansehen</a>
+        <div style="text-align:center;margin-top:14px;display:flex;gap:16px;justify-content:center">
+          <a class="demo-link" onclick="showReviewLogin()">Korrektur ansehen</a>
           <a class="demo-link" onclick="showTeacherLogin()">Lehrer-Dashboard</a>
         </div>
       </div>
-      <p class="login-info">Anmeldung mit deiner Schul-E-Mail. Jeder Test kann nur einmal gestartet werden.</p>
+      <p class="login-info">Melde dich mit deiner Schul-E-Mail an. Jeder Test kann nur einmal gestartet werden.</p>
     </div>`;
 }
 
@@ -916,9 +1152,23 @@ function studentLogin() {
 
   const userId = studentIdFromEmail(email);
 
-  if (!quiz.allowMultipleAttempts && isQuizDone(quiz.id, userId)) {
-    showLoginError('Du hast diesen Test bereits abgegeben. Kein erneuter Zugang möglich.');
-    return;
+  if (!quiz.allowMultipleAttempts) {
+    // Abgegeben? -> endgültig gesperrt
+    if (isQuizDone(quiz.id, userId)) {
+      showLoginError('Du hast diesen Test bereits abgegeben. Kein erneuter Zugang möglich.');
+      return;
+    }
+    // Bereits gestartet aber nicht abgegeben? -> gesperrt
+    if (isQuizStarted(quiz.id, userId)) {
+      showLoginError('Du hast diesen Test bereits gestartet. Kein erneuter Zugang möglich.');
+      return;
+    }
+    // Device-Lock: anderer User hat auf diesem Gerät bereits gestartet?
+    const lock = getDeviceLock(quiz.id);
+    if (lock && lock.userId !== userId) {
+      showLoginError('Dieser Test wurde auf diesem Gerät bereits mit einer anderen E-Mail gestartet.');
+      return;
+    }
   }
 
   // Extract name from email (vorname.nachname@domain)
@@ -985,7 +1235,7 @@ function renderQuizStart() {
           ${q.mode==='test'?'Test':'Übung'}
         </span>
         <h1 style="margin-bottom:4px;font-size:1.4rem">${q.title}</h1>
-        <p style="color:var(--text-light);font-size:.9rem">${q.class} — ${q.subject}</p>
+        <p style="color:var(--text-light);font-size:.9rem">${q.class} - ${q.subject}</p>
         <p style="color:var(--text-lighter);font-size:.82rem;margin-top:2px">${state.user.name} (${state.user.email})</p>
 
         <div class="quiz-start-stats">
@@ -996,7 +1246,7 @@ function renderQuizStart() {
 
         ${q.antiCheat?`<div class="anticheat-banner" style="margin-bottom:14px">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="18" height="18"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
-          <span>Anti-Cheat aktiv — Tab-Wechsel und Inaktivität werden protokolliert.</span>
+          <span>Anti-Cheat aktiv - Tab-Wechsel und Inaktivität werden protokolliert.</span>
         </div>`:''}
 
         ${q.ntaEnabled && q.timeLimitMinutes>0 ? `
@@ -1031,6 +1281,12 @@ function renderQuizStart() {
 
 function beginQuiz() {
   const quiz = state.currentQuiz;
+  // SOFORT sperren: User hat den Test jetzt gestartet und gesehen.
+  // Kein Zurück mehr (außer allowMultipleAttempts ist aktiv).
+  if (!quiz.allowMultipleAttempts) {
+    markQuizStarted(quiz.id, state.user.id);
+    setDeviceLock(quiz.id, state.user.id, state.user.email);
+  }
   state.randomSeed = hashString((state.user.id||'anon')+quiz.id);
   const rng = seededRandom(state.randomSeed);
 
@@ -1265,10 +1521,32 @@ function confirmSubmit() {
   const total=state.questionOrder.length;
   const answered=state.questionOrder.filter(qi=>{const q=state.currentQuiz.questions[qi];return state.answers[q.id]!==undefined}).length;
   const un=total-answered;
-  const msg = un>0 ? `${un} Frage${un>1?'n':''} nicht beantwortet. Trotzdem abgeben?` : 'Test wirklich abgeben?';
   state.isSubmitting = true;
-  if (!confirm(msg)) { state.isSubmitting = false; return; }
-  submitQuiz();
+
+  const overlay = document.createElement('div');
+  overlay.id = 'submit-overlay';
+  overlay.style.cssText = 'position:fixed;inset:0;background:rgba(7,11,22,.78);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);z-index:9999;display:flex;align-items:center;justify-content:center;animation:fadeIn .15s';
+  const msg = un>0 ? `Du hast noch <strong style="color:#fbbf24">${un} Frage${un>1?'n':''}</strong> nicht beantwortet.` : 'Alle Fragen beantwortet.';
+  overlay.innerHTML = `<div style="background:linear-gradient(135deg,rgba(17,24,39,.95),rgba(10,16,32,.95));border:1px solid rgba(6,182,212,.4);border-radius:18px;padding:28px;max-width:360px;width:90%;text-align:center;box-shadow:0 0 40px rgba(6,182,212,.25),0 20px 60px rgba(0,0,0,.6);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px)">
+    <div style="font-size:1.15rem;font-weight:700;margin-bottom:8px;color:#e5ecf5;letter-spacing:.3px">Test abgeben?</div>
+    <p style="font-size:.92rem;color:#94a3b8;margin-bottom:22px">${msg}</p>
+    <div style="display:flex;gap:10px">
+      <button id="submit-back-btn" style="flex:1;padding:13px;border-radius:10px;border:1px solid rgba(56,89,137,.4);background:rgba(17,24,39,.6);font-size:.95rem;font-weight:600;cursor:pointer;color:#e5ecf5">Zurück</button>
+      <button id="submit-confirm-btn" style="flex:1;padding:13px;border-radius:10px;border:none;background:linear-gradient(135deg,#06b6d4,#3b82f6 50%,#a855f7);color:#fff;font-size:.95rem;font-weight:700;cursor:pointer;box-shadow:0 0 20px rgba(6,182,212,.45)">Abgeben</button>
+    </div>
+  </div>`;
+  document.body.appendChild(overlay);
+  document.getElementById('submit-back-btn').onclick = () => { overlay.remove(); state.isSubmitting = false; };
+  document.getElementById('submit-confirm-btn').onclick = () => {
+    // Sofort visuelles Feedback: Loading-State im Dialog
+    overlay.querySelector('div').innerHTML = `
+      <div style="display:flex;flex-direction:column;align-items:center;gap:14px;padding:8px 0">
+        <div class="submit-spinner"></div>
+        <div style="font-weight:700;font-size:1.05rem;color:#e5ecf5">Wird abgegeben...</div>
+        <div style="font-size:.85rem;color:#94a3b8;letter-spacing:.3px">Bitte warten</div>
+      </div>`;
+    setTimeout(submitQuiz, 50);
+  };
 }
 
 // ---- SUBMIT ----
@@ -1317,6 +1595,9 @@ async function submitQuiz() {
 
   AntiCheat.cleanup();
   haptic('heavy');
+  // Submit-Overlay entfernen falls noch sichtbar
+  const ov = document.getElementById('submit-overlay');
+  if (ov) ov.remove();
   state.screen='results';
   render();
 }
@@ -1330,7 +1611,12 @@ function renderResults() {
   const elapsed=Math.round((Date.now()-state.startTime)/1000);
   const startFormatted=new Date(state.startTime).toLocaleTimeString('de-AT',{hour:'2-digit',minute:'2-digit'});
   const endFormatted=new Date().toLocaleTimeString('de-AT',{hour:'2-digit',minute:'2-digit'});
-  let grad='var(--gradient-success)'; if(pct<50)grad='var(--gradient-warm)'; else if(pct<80)grad='var(--gradient-cool)';
+
+  let message='Ausgezeichnet', grad='var(--gradient-success)';
+  if(pct<30){ message='Weiter dranbleiben'; grad='var(--gradient-warm)'; }
+  else if(pct<50){ message='Da geht noch was'; grad='var(--gradient-warm)'; }
+  else if(pct<70){ message='Solide Leistung'; grad='var(--gradient-cool)'; }
+  else if(pct<90){ message='Sehr gut gemacht'; grad='var(--gradient-cool)'; }
   const sheets=state._sheetsResult;
 
   return `
@@ -1338,11 +1624,12 @@ function renderResults() {
       <div class="result-hero" style="background:${grad}">
         <div class="result-score">${state.score}/${state.maxScore}</div>
         <div class="result-pct">${pct}%</div>
-        <div class="result-quiz-title">${state.currentQuiz.title} — ${state.user.name}</div>
+        <div style="font-size:1.05rem;font-weight:600;opacity:.95;margin-top:6px">${message}</div>
+        <div class="result-quiz-title">${state.currentQuiz.title} - ${state.user.name}</div>
         <div class="result-bar"><div class="result-bar-fill" style="width:${pct}%"></div></div>
       </div>
 
-      <div class="card">
+      <div class="card" style="border-radius:var(--radius)">
         <div class="stat-row"><span class="stat-label">Beginn</span><span class="stat-value">${startFormatted}</span></div>
         <div class="stat-row"><span class="stat-label">Ende</span><span class="stat-value">${endFormatted}</span></div>
         <div class="stat-row"><span class="stat-label">Dauer</span><span class="stat-value">${formatTime(elapsed)}</span></div>
@@ -1362,17 +1649,19 @@ function renderResults() {
         <div style="text-align:center;margin:8px 0">
           ${sheets?.ok ?
             '<span class="sheets-status sheets-ok">Ergebnis gespeichert</span>' :
-            '<span class="sheets-status sheets-err">Speicherung fehlgeschlagen</span>'}
+            '<span class="sheets-status sheets-err">Speicherung fehlgeschlagen - lokal gesichert</span>'}
         </div>` : ''}
 
-      <div class="card" style="text-align:center;padding:24px">
-        <p style="font-size:.95rem;color:var(--text-light);margin-bottom:0">
+      <div class="card" style="text-align:center;padding:24px;background:var(--primary-bg);border:2px solid var(--primary);border-radius:var(--radius)">
+        <p style="font-size:1rem;color:var(--primary-dark);margin-bottom:0;font-weight:500">
           Dein Ergebnis wurde gespeichert.<br>
-          Die Korrektur mit den richtigen Antworten wird nach Abgabe aller Schüler freigeschaltet.
+          <span style="font-size:.9rem">Die Korrektur wird freigeschaltet, sobald alle abgegeben haben.</span>
         </p>
       </div>
 
-      <button class="btn btn-primary btn-block btn-lg" onclick="logout()" style="margin-top:8px">Fertig</button>
+      <button class="btn btn-primary btn-block btn-lg" onclick="logout()" style="margin-top:10px">
+        Quiz beenden
+      </button>
     </div>`;
 }
 
@@ -1413,7 +1702,7 @@ function renderTeacherDashboard() {
           <tbody>
             ${QUIZZES.map(q=>{
               const cnt=r.filter(x=>x.quizId===q.id).length;
-              return `<tr><td>${q.title}</td><td><strong style="letter-spacing:2px;color:var(--primary)">${q.accessCode}</strong></td><td style="font-size:.78rem;color:var(--text-light)">${q.reviewCode||'\u2014'}</td><td>${cnt}</td></tr>`;
+              return `<tr><td>${q.title}</td><td><strong style="letter-spacing:2px;color:var(--primary-light);font-family:var(--font-mono);text-shadow:0 0 10px rgba(6,182,212,.4)">${q.accessCode}</strong></td><td style="font-size:.78rem;color:var(--text-light);font-family:var(--font-mono)">${q.reviewCode||'\u2014'}</td><td>${cnt}</td></tr>`;
             }).join('')}
           </tbody>
         </table>
@@ -1430,7 +1719,7 @@ function renderTeacherDashboard() {
                 return `<tr><td style="font-weight:500">${x.userName}</td><td style="font-size:.78rem">${x.userEmail}</td>
                   <td style="font-size:.78rem">${x.quizTitle}</td><td>${x.score}/${x.maxScore}</td>
                   <td>${x.percentage}%</td><td><span class="badge ${tb}">${x.trustScore}</span></td>
-                  <td>${x.ntaActive?'<span class="badge badge-yellow">NTA</span>':'—'}</td></tr>`;
+                  <td>${x.ntaActive?'<span class="badge badge-yellow">NTA</span>':'-'}</td></tr>`;
               }).join('')}
             </tbody>
           </table>
@@ -1441,8 +1730,8 @@ function renderTeacherDashboard() {
         Sammel-Excel exportieren
       </button>
       <button class="btn btn-ghost btn-block" style="margin-top:6px;font-size:.82rem"
-        onclick="if(confirm('Alle Ergebnisse löschen?')){localStorage.removeItem('qz_results');state.allResults=[];render()}">
-        Ergebnisse zurücksetzen
+        onclick="if(confirm('Alle Ergebnisse UND alle Test-Sperren löschen?')){resetAllLocksAndResults()}">
+        Ergebnisse & Sperren zurücksetzen
       </button>
 
       ${!CONFIG.googleSheetsUrl?`
@@ -1533,7 +1822,7 @@ function renderReview() {
         <div style="font-size:.88rem">
           <div style="margin-bottom:4px"><strong>Deine Antwort:</strong> ${userText}</div>
           ${!correct ? '<div style="color:var(--success)"><strong>Richtige Antwort:</strong> ' + correctText + '</div>' : ''}
-          ${q.explanation ? '<div style="margin-top:8px;padding:8px;background:rgba(0,0,0,.04);border-radius:6px;font-size:.84rem"><strong>Erklärung:</strong> ' + q.explanation + '</div>' : ''}
+          ${q.explanation ? '<div style="margin-top:8px;padding:10px 12px;background:rgba(6,182,212,.06);border:1px solid rgba(6,182,212,.2);border-radius:8px;font-size:.84rem;color:var(--text-light)"><strong style="color:var(--primary-light)">Erklärung:</strong> ' + q.explanation + '</div>' : ''}
         </div>
       </div>`;
   });
@@ -1543,7 +1832,7 @@ function renderReview() {
       <div class="result-hero" style="background:${grad}">
         <div class="result-score">${result.score}/${result.maxScore}</div>
         <div class="result-pct">${pct}%</div>
-        <div class="result-quiz-title">${quiz.title} — Korrektur</div>
+        <div class="result-quiz-title">${quiz.title} - Korrektur</div>
         <div class="result-bar"><div class="result-bar-fill" style="width:${pct}%"></div></div>
       </div>
       ${questionsHtml}
@@ -1560,6 +1849,330 @@ function logout() {
   state.answers={}; state.submitted=false; state.ntaActive=false;
   render();
 }
+
+// ============================================================
+// PHYSIK-HINTERGRUND-ANIMATION
+// Doppelspalt-Experiment: Lichtquelle links -> Barriere mit zwei
+// Spalten -> Schirm rechts. Auf dem Schirm entsteht das klassische
+// Interferenzmuster (I = cos²(π·d·y/(λ·L)) · sinc²(π·a·y/(λ·L))).
+// Einzelne Photonen treffen den Schirm, flashen kurz auf und
+// bleiben als leuchtende Punkte liegen - so baut sich das Muster
+// über die Zeit auf (wie im echten Quantenexperiment).
+// ============================================================
+let bgAnimFrame = null;
+function startBgAnimation() {
+  const canvas = document.getElementById('bg-canvas');
+  if (!canvas) return;
+  if (bgAnimFrame) cancelAnimationFrame(bgAnimFrame);
+  const ctx = canvas.getContext('2d');
+  const dpr = Math.min(window.devicePixelRatio || 1, 2);
+  function resize() {
+    canvas.width = window.innerWidth * dpr;
+    canvas.height = window.innerHeight * dpr;
+    canvas.style.width = window.innerWidth + 'px';
+    canvas.style.height = window.innerHeight + 'px';
+  }
+  resize();
+  window.addEventListener('resize', resize);
+
+  // Intensitätsverteilung auf dem Schirm
+  // I(y) = cos²(π·y/Δy) · sinc²(π·y/(n·Δy))
+  // wobei Δy der Streifenabstand ist und n die Anzahl der Nebenmaxima
+  // unter der Einhüllenden (hier ~3.5 Ordnungen sichtbar).
+  const fringeSpacing = 46 * dpr;
+  const envelopeWidth = 170 * dpr;
+  function intensityAt(relY) {
+    const cos2 = Math.cos(Math.PI * relY / fringeSpacing) ** 2;
+    const u = relY / envelopeWidth;
+    if (Math.abs(u) < 0.0001) return cos2;
+    const s = Math.sin(Math.PI * u) / (Math.PI * u);
+    return cos2 * s * s;
+  }
+
+  // Photonen, die bereits auf den Schirm getroffen sind
+  const photons = [];
+  const maxPhotons = 260;
+  function sampleY(H) {
+    // Rejection sampling gemäß Intensitätsverteilung
+    for (let i = 0; i < 40; i++) {
+      const relY = (Math.random() - 0.5) * envelopeWidth * 2.4;
+      if (Math.random() < intensityAt(relY)) return H / 2 + relY;
+    }
+    return H / 2;
+  }
+
+  let t0 = performance.now();
+  let lastPhotonAt = 0;
+
+  function draw(ts) {
+    const now = ts || performance.now();
+    const t = (now - t0) / 1000;
+    const W = canvas.width, H = canvas.height;
+
+    // Dunkler Weltraum-Hintergrund
+    ctx.fillStyle = '#070b16';
+    ctx.fillRect(0, 0, W, H);
+
+    // Layout
+    const sourceX  = W * 0.11;
+    const barrierX = W * 0.32;
+    const screenX  = W * 0.82;
+    const slitSep  = 44 * dpr;
+    const slitLen  = 12 * dpr;
+    const slitY1   = H / 2 - slitSep / 2;
+    const slitY2   = H / 2 + slitSep / 2;
+
+    // ============ LICHTQUELLE (pulsierend) ============
+    const pulse = 0.75 + 0.25 * Math.sin(t * 2.4);
+    const srcGlow = ctx.createRadialGradient(sourceX, H/2, 0, sourceX, H/2, 140 * dpr);
+    srcGlow.addColorStop(0, `rgba(103,232,249,${0.5 * pulse})`);
+    srcGlow.addColorStop(0.35, `rgba(34,211,238,${0.18 * pulse})`);
+    srcGlow.addColorStop(1, 'rgba(34,211,238,0)');
+    ctx.fillStyle = srcGlow;
+    ctx.fillRect(sourceX - 140*dpr, H/2 - 140*dpr, 280*dpr, 280*dpr);
+    // Quell-Kern
+    ctx.fillStyle = '#e0f7fb';
+    ctx.beginPath();
+    ctx.arc(sourceX, H/2, 3.5 * dpr, 0, Math.PI * 2);
+    ctx.fill();
+
+    // Dezente Strahlen Quelle -> Spalte (nur andeuten, kein Wellenfeld)
+    ctx.strokeStyle = `rgba(103,232,249,${0.10 * pulse})`;
+    ctx.lineWidth = 1 * dpr;
+    ctx.beginPath();
+    ctx.moveTo(sourceX, H/2); ctx.lineTo(barrierX, slitY1);
+    ctx.moveTo(sourceX, H/2); ctx.lineTo(barrierX, slitY2);
+    ctx.stroke();
+
+    // ============ BARRIERE MIT 2 SPALTEN ============
+    ctx.strokeStyle = 'rgba(148,163,184,0.55)';
+    ctx.lineWidth = 2.5 * dpr;
+    ctx.beginPath();
+    ctx.moveTo(barrierX, 0);
+    ctx.lineTo(barrierX, slitY1 - slitLen/2);
+    ctx.moveTo(barrierX, slitY1 + slitLen/2);
+    ctx.lineTo(barrierX, slitY2 - slitLen/2);
+    ctx.moveTo(barrierX, slitY2 + slitLen/2);
+    ctx.lineTo(barrierX, H);
+    ctx.stroke();
+    // Leuchtende Spalt-Marker
+    for (const sy of [slitY1, slitY2]) {
+      const sg = ctx.createRadialGradient(barrierX, sy, 0, barrierX, sy, 18 * dpr);
+      sg.addColorStop(0, `rgba(103,232,249,${0.9 * pulse})`);
+      sg.addColorStop(1, 'rgba(103,232,249,0)');
+      ctx.fillStyle = sg;
+      ctx.fillRect(barrierX - 18*dpr, sy - 18*dpr, 36*dpr, 36*dpr);
+    }
+
+    // ============ SCHIRM MIT INTERFERENZMUSTER ============
+    const screenWidth = 46 * dpr;
+
+    // Schirm-Rahmen (HUD-Look)
+    ctx.strokeStyle = 'rgba(148,163,184,0.35)';
+    ctx.lineWidth = 1 * dpr;
+    ctx.strokeRect(screenX - 3*dpr, 4*dpr, screenWidth + 6*dpr, H - 8*dpr);
+    // Corner-Brackets am Schirm
+    ctx.strokeStyle = 'rgba(103,232,249,0.75)';
+    ctx.lineWidth = 2 * dpr;
+    const cb = 14 * dpr;
+    const sL = screenX - 3*dpr, sR = screenX + screenWidth + 3*dpr;
+    const sT = 4*dpr, sB = H - 4*dpr;
+    ctx.beginPath();
+    ctx.moveTo(sL, sT + cb); ctx.lineTo(sL, sT); ctx.lineTo(sL + cb, sT);
+    ctx.moveTo(sR - cb, sT); ctx.lineTo(sR, sT); ctx.lineTo(sR, sT + cb);
+    ctx.moveTo(sL, sB - cb); ctx.lineTo(sL, sB); ctx.lineTo(sL + cb, sB);
+    ctx.moveTo(sR - cb, sB); ctx.lineTo(sR, sB); ctx.lineTo(sR, sB + 0);
+    ctx.moveTo(sR, sB - cb); ctx.lineTo(sR, sB);
+    ctx.stroke();
+
+    // Interferenz-Muster: leuchtende Streifen mit Glow
+    // (3 Layer für echten Neon-Look)
+    for (let layer = 0; layer < 3; layer++) {
+      const spread = [screenWidth * 1.6, screenWidth * 1.0, screenWidth * 0.45][layer];
+      const alphaMul = [0.18, 0.45, 0.95][layer];
+      const colors = ['34,211,238', '103,232,249', '224,247,250'];
+      for (let y = 0; y < H; y += dpr) {
+        const relY = y - H/2;
+        const I = intensityAt(relY);
+        if (I < 0.015) continue;
+        const a = Math.min(1, Math.pow(I, 0.85) * alphaMul);
+        ctx.fillStyle = `rgba(${colors[layer]},${a})`;
+        const w = spread;
+        ctx.fillRect(screenX + (screenWidth - w) / 2, y, w, dpr);
+      }
+    }
+
+    // ============ PHOTON-TREFFER ============
+    // Neue Photonen im Takt hinzufügen
+    if (now - lastPhotonAt > 35) {
+      lastPhotonAt = now;
+      for (let i = 0; i < 2; i++) {
+        photons.push({
+          x: screenX + 6*dpr + Math.random() * (screenWidth - 12*dpr),
+          y: sampleY(H),
+          age: 0
+        });
+      }
+      while (photons.length > maxPhotons) photons.shift();
+    }
+
+    // Photonen zeichnen: Flash-Phase + dauerhafter Punkt
+    for (const p of photons) {
+      p.age += 1;
+      const flash = Math.max(0, 1 - p.age / 20);
+      if (flash > 0) {
+        // Weißer Flash-Halo
+        const fg = ctx.createRadialGradient(p.x, p.y, 0, p.x, p.y, 10 * dpr);
+        fg.addColorStop(0, `rgba(255,255,255,${flash})`);
+        fg.addColorStop(0.4, `rgba(103,232,249,${flash * 0.6})`);
+        fg.addColorStop(1, 'rgba(103,232,249,0)');
+        ctx.fillStyle = fg;
+        ctx.fillRect(p.x - 10*dpr, p.y - 10*dpr, 20*dpr, 20*dpr);
+      }
+      // Permanenter leuchtender Punkt
+      ctx.fillStyle = 'rgba(224,247,250,0.85)';
+      ctx.beginPath();
+      ctx.arc(p.x, p.y, 1.2 * dpr, 0, Math.PI * 2);
+      ctx.fill();
+    }
+
+    bgAnimFrame = requestAnimationFrame(draw);
+  }
+  draw();
+}
+function stopBgAnimation() {
+  if (bgAnimFrame) { cancelAnimationFrame(bgAnimFrame); bgAnimFrame = null; }
+}
+
+// ============================================================
+// PARTIKEL-FELD (immer aktiv, dezent, nicht ablenkend)
+// Langsam driftende Leuchtpunkte im Hintergrund - erinnert an
+// ein Teilchenfeld / Sternenhimmel / Quantenvakuum.
+// ============================================================
+let particleFrame = null;
+function startParticleField() {
+  const canvas = document.getElementById('particle-canvas');
+  if (!canvas) return;
+  if (particleFrame) cancelAnimationFrame(particleFrame);
+  const ctx = canvas.getContext('2d');
+  const dpr = Math.min(window.devicePixelRatio || 1, 2);
+  function resize() {
+    canvas.width = window.innerWidth * dpr;
+    canvas.height = window.innerHeight * dpr;
+    canvas.style.width = window.innerWidth + 'px';
+    canvas.style.height = window.innerHeight + 'px';
+  }
+  resize();
+  window.addEventListener('resize', resize);
+
+  const count = Math.min(45, Math.floor(window.innerWidth / 22));
+  const particles = [];
+  for (let i = 0; i < count; i++) {
+    particles.push({
+      x: Math.random() * canvas.width,
+      y: Math.random() * canvas.height,
+      vx: (Math.random() - 0.5) * 0.15 * dpr,
+      vy: (Math.random() - 0.5) * 0.15 * dpr - 0.08 * dpr,
+      r: (Math.random() * 1.2 + 0.4) * dpr,
+      phase: Math.random() * Math.PI * 2,
+      hue: Math.random() < 0.5 ? 'cyan' : Math.random() < 0.6 ? 'blue' : 'violet',
+    });
+  }
+
+  let t0 = performance.now();
+  function draw(ts) {
+    const t = ((ts || performance.now()) - t0) / 1000;
+    const W = canvas.width, H = canvas.height;
+    ctx.clearRect(0, 0, W, H);
+
+    for (const p of particles) {
+      p.x += p.vx;
+      p.y += p.vy;
+      if (p.x < -10) p.x = W + 10;
+      if (p.x > W + 10) p.x = -10;
+      if (p.y < -10) p.y = H + 10;
+      if (p.y > H + 10) p.y = -10;
+
+      const twinkle = 0.4 + 0.6 * (0.5 + 0.5 * Math.sin(t * 1.5 + p.phase));
+      const color = p.hue === 'cyan' ? `rgba(103,232,249,${twinkle * 0.55})`
+                  : p.hue === 'blue' ? `rgba(96,165,250,${twinkle * 0.45})`
+                  : `rgba(168,85,247,${twinkle * 0.45})`;
+      const glowColor = p.hue === 'cyan' ? `rgba(103,232,249,${twinkle * 0.15})`
+                      : p.hue === 'blue' ? `rgba(96,165,250,${twinkle * 0.12})`
+                      : `rgba(168,85,247,${twinkle * 0.12})`;
+      // Glow
+      const g = ctx.createRadialGradient(p.x, p.y, 0, p.x, p.y, p.r * 6);
+      g.addColorStop(0, glowColor);
+      g.addColorStop(1, 'rgba(0,0,0,0)');
+      ctx.fillStyle = g;
+      ctx.fillRect(p.x - p.r * 6, p.y - p.r * 6, p.r * 12, p.r * 12);
+      // Kern
+      ctx.fillStyle = color;
+      ctx.beginPath();
+      ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
+      ctx.fill();
+    }
+
+    // Subtile Linien zwischen nahen Partikeln (Constellation-Effekt)
+    ctx.strokeStyle = 'rgba(103,232,249,0.08)';
+    ctx.lineWidth = 1;
+    for (let i = 0; i < particles.length; i++) {
+      for (let j = i + 1; j < particles.length; j++) {
+        const dx = particles[i].x - particles[j].x;
+        const dy = particles[i].y - particles[j].y;
+        const d2 = dx*dx + dy*dy;
+        const maxD = 110 * dpr;
+        if (d2 < maxD * maxD) {
+          const a = (1 - Math.sqrt(d2) / maxD) * 0.12;
+          ctx.strokeStyle = `rgba(103,232,249,${a})`;
+          ctx.beginPath();
+          ctx.moveTo(particles[i].x, particles[i].y);
+          ctx.lineTo(particles[j].x, particles[j].y);
+          ctx.stroke();
+        }
+      }
+    }
+
+    particleFrame = requestAnimationFrame(draw);
+  }
+  draw();
+}
+function stopParticleField() {
+  if (particleFrame) { cancelAnimationFrame(particleFrame); particleFrame = null; }
+}
+function ensureParticleCanvas() {
+  if (!document.getElementById('particle-canvas')) {
+    const c = document.createElement('canvas');
+    c.id = 'particle-canvas';
+    c.className = 'particle-canvas';
+    document.body.insertBefore(c, document.body.firstChild);
+  }
+}
+
+// Beim Render automatisch starten/stoppen
+const _origRender = render;
+render = function() {
+  _origRender();
+  const pc = document.getElementById('particle-canvas');
+  // Doppelspalt-Animation nur am Login (Hauptattraktion)
+  if (state.screen === 'login') {
+    if (pc) pc.style.display = 'none';
+    stopParticleField();
+    requestAnimationFrame(startBgAnimation);
+  } else {
+    stopBgAnimation();
+    // Partikelfeld: überall außer im aktiven Quiz (dort keine Ablenkung)
+    if (state.screen !== 'quiz') {
+      ensureParticleCanvas();
+      const pc2 = document.getElementById('particle-canvas');
+      if (pc2) pc2.style.display = '';
+      requestAnimationFrame(startParticleField);
+    } else {
+      if (pc) pc.style.display = 'none';
+      stopParticleField();
+    }
+  }
+};
 
 // ---- INIT ----
 render();
